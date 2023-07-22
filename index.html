@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
+        />
+        <link />
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"
+        ></script>
+
+        <style>
+            section {
+                padding-top: 50px;
+            }
+        </style>
+
+        <title>POKIE examples</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>POKIE examples</h1>
+
+            <section>
+                <h2>Simple video slot game</h2>
+                <div class="paragraph">An example of a simple 5x4 video slot game with 8 winning lines.</div>
+                <div class="paragraph">Features:</div>
+                <ul>
+                    <li>Winning lines are counted from right to left. A line of minimum 3 winning symbols pays out.</li>
+                    <li>"Wild" is a wild symbol that substitutes any other symbol on a winning line.</li>
+                    <li>
+                        "Scatter1" is a scatter symbol that pays out 10x, 20x, or 30x the bet if 3 or more symbols
+                        appear on any positions. Only one "Scatter1" can appear on any reel.
+                    </li>
+                    <li>
+                        "Scatter2" is a stacked scatter symbol that can appear on the 3 middle reels. If all 3 middle
+                        reels are covered with "Scatter2" symbols, the game pays 100x the bet.
+                    </li>
+                </ul>
+                <a href="simple-slot.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/simple-slot">Code</a>
+            </section>
+
+            <section>
+                <h2>Video slot with free spins</h2>
+                <div class="paragraph">An example of a 5x3 video slot game with free spins.</div>
+                <div class="paragraph">Features:</div>
+                <ul>
+                    <li>A minimum of 2 winning symbols on a winning line or scattered across all reels pays out.</li>
+                    <li>
+                        During free spins, symbols on a winning line are counted not only from left to right but can
+                        also be scattered across the winning line definition.
+                    </li>
+                    <li>
+                        During free spins, symbol sequences are different from the base game's ones. Sequences during
+                        free spins do not contain scatter symbols, so free spins cannot be re-triggered.
+                    </li>
+                    <li>During free spins, all wins are multiplied by x2.</li>
+                    <li>This example also demonstrates the usage of Simulation to obtain the desired game outcomes.</li>
+                </ul>
+                <a href="slot-with-free-games.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-free-games">Code</a>
+            </section>
+
+            <section>
+                <h2>Video slot with sticky re-spin</h2>
+                <div class="paragraph">
+                    An example of a 5x3 video slot game with sticky re-spin feature. Every winning combination triggers
+                    the re-spin during which all the winning symbols are held on their places. The re-spins continue as
+                    long as there are new wins.
+                </div>
+                <a href="slot-with-sticky-respin.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-sticky-respin">Code</a>
+            </section>
+        </div>
+    </body>
+</html>
