@@ -6,5 +6,5 @@ import {
     customScenarios as scenarios,
 } from "./games/slot-with-free-games";
 
-await initializeData(session, serializer, scenarios);
-await initializeUi(document.getElementById("ui") as HTMLTableElement, scenarios as unknown as [string, string][]);
+initializeData(session, serializer, scenarios);
+initializeUi(document.getElementById("ui") as HTMLTableElement, scenarios as unknown as [string, string][]);
