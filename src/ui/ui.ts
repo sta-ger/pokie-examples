@@ -13,21 +13,32 @@ import {getInitialData} from "../data.ts";
 export const initializeUi = async (div: HTMLDivElement, customScenarios?: [string, string][]) => {
     const style = document.createElement("style");
     style.innerText = `
+            #reels {
+                width: 100%;
+                table-layout: fixed;
+            }
+
             .reels-row {
                 height: 50px;
                 background-color: #dddddd;
             }
 
             .reels-item {
-                width: 115px;
                 text-align: center;
                 font-weight: bold;
                 color: #444444;
                 border: 3px solid white;
+                overflow: hidden;
             }
 
             .paragraph {
                 padding-top: 20px;
+            }
+
+            @media (max-width: 480px) {
+                .reels-item {
+                    font-size: 12px;
+                }
             }
     `;
     style.id = "ui-style";
@@ -58,7 +69,7 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
     }
 
     div.className = "container";
-    div.style.width = "600px";
+    div.style.maxWidth = "600px";
 
     div.innerHTML = `
             <div class="paragraph">
@@ -134,15 +145,17 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                         <div id="collapsePaytable" class="accordion-collapse collapse" aria-labelledby="headingPaytable"
                              data-bs-parent="#accordionMath">
                             <div class="accordion-body">
-                                <table class="table">
-                                    <thead>
-                                    <tr id="paytableHead">
-                                        <th scope="col">Symbol</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="paytableBody">
-                                    </tbody>
-                                </table>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                        <tr id="paytableHead">
+                                            <th scope="col">Symbol</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="paytableBody">
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
