@@ -1,4 +1,9 @@
-import {SymbolsCombination, SymbolsCombinationDescribing, SymbolsCombinationsGenerator} from "pokie";
+import {
+    SymbolsCombination,
+    SymbolsCombinationDescribing,
+    SymbolsCombinationsAnalyzer,
+    SymbolsCombinationsGenerator,
+} from "pokie";
 
 export type SymbolPosition = {
     x: number;
@@ -20,10 +25,11 @@ export class SwsrCombinationsGenerator extends SymbolsCombinationsGenerator {
     public generateSymbolsCombination(): SymbolsCombinationDescribing {
         const symbolsMatrix = super.generateSymbolsCombination().toMatrix();
 
-        this.stickySymbolsPositions.forEach((pos) => {
-            symbolsMatrix[pos.x][pos.y] = pos.symbolId;
-        });
+        const symbolsMatrixWithStickySymbols = SymbolsCombinationsAnalyzer.overlaySymbols(
+            symbolsMatrix,
+            this.stickySymbolsPositions.map((pos) => ({position: [pos.x, pos.y], symbolId: pos.symbolId})),
+        );
 
-        return new SymbolsCombination().fromMatrix(symbolsMatrix);
+        return new SymbolsCombination().fromMatrix(symbolsMatrixWithStickySymbols);
     }
 }

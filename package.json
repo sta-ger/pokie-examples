@@ -7,15 +7,17 @@
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
-        "pages": "npm run build && gh-pages -d dist"
+        "pages": "npm run build && gh-pages -d dist",
+        "test:e2e": "node scripts/e2e-smoke-test.js"
     },
     "devDependencies": {
         "gh-pages": "^5.0.0",
+        "playwright": "^1.61.1",
         "prettier": "^2.8.8",
         "typescript": "^5.0.2",
         "vite": "^4.3.9"
     },
     "dependencies": {
-        "pokie": "^1.0.0"
+        "pokie": "^1.2.0"
     }
 }
