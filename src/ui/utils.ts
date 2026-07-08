@@ -220,6 +220,10 @@ export const drawOutcome = (
         }
     } else {
         winningLinesDiv.style.display = "none";
+        const winningLinesListDiv = document.getElementById("winningLinesList")!;
+        while (winningLinesListDiv.children.length > 0) {
+            winningLinesListDiv.removeChild(winningLinesListDiv.children[0]);
+        }
     }
 
     if (winningScatters) {

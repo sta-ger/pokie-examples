@@ -14,6 +14,7 @@ export default {
         page7: 'growing-grid.html',
         page8: 'value-pay-multiplier.html',
         page9: 'verifiable-spin.html',
+        page10: 'mixed-evaluators.html',
       },
     },
   },
