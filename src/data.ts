@@ -16,15 +16,20 @@ import {
 let localSession: VideoSlotSession | VideoSlotWithFreeGamesSession;
 let localSerializer: VideoSlotSessionSerializer | VideoSlotWithFreeGamesSessionSerializer;
 let localCustomScenarios: [string, string, SimulationConfig][] | undefined;
+// Lets a game's own index.ts render round state the generic serializer doesn't know about
+// (e.g. cascade step history, RNG audit info) without every game forking data.ts/utils.ts.
+let onAfterRoundPlayed: ((session: VideoSlotSession | VideoSlotWithFreeGamesSession) => void) | undefined;
 
 export const initializeData = (
     session: VideoSlotSession | VideoSlotWithFreeGamesSession,
     serializer: VideoSlotSessionSerializer | VideoSlotWithFreeGamesSessionSerializer,
     customScenarios?: [string, string, SimulationConfig][],
+    afterRoundPlayed?: (session: VideoSlotSession | VideoSlotWithFreeGamesSession) => void,
 ) => {
     localSession = session;
     localSerializer = serializer;
     localCustomScenarios = customScenarios;
+    onAfterRoundPlayed = afterRoundPlayed;
 };
 
 export const getInitialData = async (): Promise<
@@ -38,6 +43,7 @@ export const getInitialData = async (): Promise<
 export const getRoundData = async (): Promise<VideoSlotRoundNetworkData | VideoSlotWithFreeGamesRoundNetworkData> => {
     return new Promise((res) => {
         localSession.play();
+        onAfterRoundPlayed?.(localSession);
         res(localSerializer.getRoundData(localSession as VideoSlotWithFreeGamesSession));
     });
 };
@@ -76,5 +82,6 @@ const runSimulation = (simulationConfig: SimulationConfig) => {
     const simulation = new Simulation(localSession, simulationConfig);
     localSession.play();
     simulation.run();
+    onAfterRoundPlayed?.(localSession);
     return localSerializer.getRoundData(localSession as VideoSlotWithFreeGamesSession);
 };

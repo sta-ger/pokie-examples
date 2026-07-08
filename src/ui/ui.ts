@@ -124,7 +124,9 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                 <h4>Winning lines</h4>
                 <div class="paragraph" id="winningLinesList"></div>
             </div>
-            
+
+            <div class="paragraph" id="customInfo"></div>
+
             <div class="paragraph">
                 <div class="accordion" id="accordionMath">
                     <div class="accordion-item">

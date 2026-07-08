@@ -9,6 +9,7 @@ export default {
         page2: 'simple-slot.html',
         page3: 'slot-with-free-games.html',
         page4: 'slot-with-sticky-respin.html',
+        page5: 'cascading-cluster.html',
       },
     },
   },
