@@ -12,6 +12,7 @@ export default {
         page5: 'cascading-cluster.html',
         page6: 'megaways-style.html',
         page7: 'growing-grid.html',
+        page8: 'value-pay-multiplier.html',
       },
     },
   },
