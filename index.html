@@ -81,6 +81,77 @@
                 <a href="slot-with-sticky-respin.html">Demo</a>
                 <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-sticky-respin">Code</a>
             </section>
+
+            <section>
+                <h2>Cascading cluster pays</h2>
+                <div class="paragraph">
+                    An example of a cascading (tumbling) 6x5 cluster-pay video slot. Wins are groups of 5+
+                    adjacent same-symbol cells rather than paylines; winning clusters are removed, the grid
+                    collapses and refills, and evaluation repeats until nothing wins. Each cascade step pays with
+                    an escalating multiplier (x1, x2, x3, ...).
+                </div>
+                <a href="cascading-cluster.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/cascading-cluster">Code</a>
+            </section>
+
+            <section>
+                <h2>Megaways-style ways-to-win</h2>
+                <div class="paragraph">
+                    An example of a Megaways-style video slot. Each of the 6 reels draws its own row count at
+                    random every round (2 to 6 rows), so the grid shape changes every spin. Wins are "ways to
+                    win" - for a symbol, the product of how many matching cells sit in each consecutive reel from
+                    the left - rather than fixed paylines.
+                </div>
+                <a href="megaways-style.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/megaways-style">Code</a>
+            </section>
+
+            <section>
+                <h2>Growing grid bonus</h2>
+                <div class="paragraph">
+                    An example of a growing-grid feature. The 5x3 grid grows by one row on every winning round
+                    (up to 5x6), giving the "Gem" scatter symbol more room to land and bigger wins more room to
+                    happen - a losing round resets the grid back down to its starting size.
+                </div>
+                <a href="growing-grid.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/growing-grid">Code</a>
+            </section>
+
+            <section>
+                <h2>Value pay with multiplier wilds</h2>
+                <div class="paragraph">
+                    An example combining two independent win styles: "Coin" symbols pay their own value for
+                    every occurrence anywhere on the grid (value pay), while "WildX2"/"WildX3"/"WildX5" are
+                    ordinary line wilds that also multiply whatever line win they end up part of - scoped to
+                    line wins only, so the coins are unaffected.
+                </div>
+                <a href="value-pay-multiplier.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/value-pay-multiplier">Code</a>
+            </section>
+
+            <section>
+                <h2>Verifiable spin</h2>
+                <div class="paragraph">
+                    An example of a reproducible round using SeededRandomNumberGenerator instead of the default
+                    Math.random()-based RNG. A "Verify last spin" button replays the session's seed from scratch
+                    and confirms it reproduces the exact same stop positions - useful for dispute resolution or
+                    certification test suites, not a substitute for a secure RNG in real-money play.
+                </div>
+                <a href="verifiable-spin.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/verifiable-spin">Code</a>
+            </section>
+
+            <section>
+                <h2>Mixed win evaluators</h2>
+                <div class="paragraph">
+                    An example evaluating the same 5x4 grid three different ways every round - fixed paylines,
+                    243-style ways-to-win, and 5+-adjacent-cell clusters - and paying out whichever style wins
+                    the most that round. Lines/ways/clusters read from the same shared paytable, so combining
+                    them here is mostly a matter of which aggregation policy to pick.
+                </div>
+                <a href="mixed-evaluators.html">Demo</a>
+                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/mixed-evaluators">Code</a>
+            </section>
         </div>
     </body>
 </html>
