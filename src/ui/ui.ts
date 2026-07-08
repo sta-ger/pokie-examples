@@ -72,6 +72,12 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
     div.style.maxWidth = "600px";
 
     div.innerHTML = `
+            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center
+                        justify-content-sm-between gap-1 pt-4 pb-3 mb-2 border-bottom">
+                <h1 class="h4 mb-0">${document.title.replace(" with POKIE", "")}</h1>
+                <a href="index.html" class="text-decoration-none">&larr; All examples</a>
+            </div>
+
             <div class="paragraph">
                 <table id="reels" class="reels"></table>
             </div>
