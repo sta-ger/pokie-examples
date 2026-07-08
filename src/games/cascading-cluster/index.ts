@@ -11,12 +11,8 @@ Features:
   what happened at each intermediate step along the way.
 */
 
-import {
-    SymbolsCombinationsGenerator,
-    VideoSlotSession,
-    VideoSlotSessionSerializer,
-    VideoSlotWithFreeGamesSession,
-} from "pokie";
+import {SymbolsCombinationsGenerator, VideoSlotSessionSerializer} from "pokie";
+import {AnyVideoSlotSession} from "../../data.ts";
 import {CascadingClusterConfig} from "./CascadingClusterConfig.ts";
 import {CascadingClusterWinCalculator} from "./CascadingClusterWinCalculator.ts";
 import {CascadingClusterSession} from "./CascadingClusterSession.ts";
@@ -35,7 +31,7 @@ The generic serializer has no idea cascades happened at all - it only sees the f
 and the combined win amount. This renders the per-step breakdown directly from the win calculator's
 own CascadeResult, via data.ts's generic afterRoundPlayed hook.
 */
-export const afterRoundPlayed = (_session: VideoSlotSession | VideoSlotWithFreeGamesSession) => {
+export const afterRoundPlayed = (_session: AnyVideoSlotSession) => {
     const container = document.getElementById("customInfo");
     if (!container) {
         return;

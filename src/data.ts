@@ -11,20 +11,23 @@ import {
     VideoSlotWithFreeGamesRoundNetworkData,
     VideoSlotWithFreeGamesSession,
     VideoSlotWithFreeGamesSessionSerializer,
+    VideoSlotWithResizableGridSession,
 } from "pokie";
 
-let localSession: VideoSlotSession | VideoSlotWithFreeGamesSession;
+export type AnyVideoSlotSession = VideoSlotSession | VideoSlotWithFreeGamesSession | VideoSlotWithResizableGridSession;
+
+let localSession: AnyVideoSlotSession;
 let localSerializer: VideoSlotSessionSerializer | VideoSlotWithFreeGamesSessionSerializer;
 let localCustomScenarios: [string, string, SimulationConfig][] | undefined;
 // Lets a game's own index.ts render round state the generic serializer doesn't know about
 // (e.g. cascade step history, RNG audit info) without every game forking data.ts/utils.ts.
-let onAfterRoundPlayed: ((session: VideoSlotSession | VideoSlotWithFreeGamesSession) => void) | undefined;
+let onAfterRoundPlayed: ((session: AnyVideoSlotSession) => void) | undefined;
 
 export const initializeData = (
-    session: VideoSlotSession | VideoSlotWithFreeGamesSession,
+    session: AnyVideoSlotSession,
     serializer: VideoSlotSessionSerializer | VideoSlotWithFreeGamesSessionSerializer,
     customScenarios?: [string, string, SimulationConfig][],
-    afterRoundPlayed?: (session: VideoSlotSession | VideoSlotWithFreeGamesSession) => void,
+    afterRoundPlayed?: (session: AnyVideoSlotSession) => void,
 ) => {
     localSession = session;
     localSerializer = serializer;
