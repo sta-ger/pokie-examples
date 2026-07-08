@@ -1,8 +1,11 @@
 import {
     SymbolsCombination,
     VideoSlotWithFreeGamesRoundNetworkData,
+    WinningClusterNetworkData,
     WinningLineNetworkData,
     WinningScatterNetworkData,
+    WinningValueNetworkData,
+    WinningWayNetworkData,
 } from "pokie";
 import {getAnyWinData, getCustomScenarioData, getRoundData, getSymbolWinData} from "../data.ts";
 
@@ -43,10 +46,47 @@ export const setCountersValues = (
     bankDiv.innerHTML = "FG bank: " + freeGamesBank;
 };
 
+const addHighlightButton = (
+    div: HTMLElement,
+    label: string,
+    positions: number[][],
+    highlightColor: string,
+) => {
+    const d = document.createElement("div");
+    const btn = document.createElement("button");
+    btn.innerText = label;
+    btn.className = "btn btn-secondary btn-sm";
+    d.style.paddingRight = "20px";
+    d.style.paddingBottom = "20px";
+    d.style.display = "inline-block";
+    d.appendChild(btn);
+
+    btn.onmouseenter = () => {
+        positions.forEach(([x, y]) => {
+            const td = document.getElementById(y + ":" + x);
+            if (td) {
+                td.style.backgroundColor = highlightColor;
+            }
+        });
+    };
+    btn.onmouseleave = () => {
+        positions.forEach(([x, y]) => {
+            const td = document.getElementById(y + ":" + x) as HTMLElementWithBaseColor;
+            if (td) {
+                td.style.backgroundColor = td.baseColor;
+            }
+        });
+    };
+    div.appendChild(d);
+};
+
 export const drawWinningLinesList = (
     div: HTMLElement,
     winningLines?: Record<string, WinningLineNetworkData>,
     winningScatters?: Record<string, WinningScatterNetworkData>,
+    winningClusters?: Record<string, WinningClusterNetworkData>,
+    winningValues?: Record<string, WinningValueNetworkData>,
+    winningWays?: Record<string, WinningWayNetworkData>,
 ) => {
     while (div.children.length > 0) {
         div.removeChild(div.children[0]);
@@ -87,63 +127,87 @@ export const drawWinningLinesList = (
     }
     if (winningScatters) {
         Object.values(winningScatters).forEach((scatter) => {
-            const d = document.createElement("div");
-            const btn = document.createElement("button");
-            btn.innerText = "Scatter: " + scatter.symbolId + ", win: " + scatter.winAmount;
-            btn.className = "btn btn-secondary btn-sm";
-            d.style.paddingRight = "20px";
-            d.style.paddingBottom = "20px";
-            d.style.display = "inline-block";
-            d.appendChild(btn);
-
-            btn.onmouseenter = () => {
-                scatter.symbolsPositions.forEach(([x, y]) => {
-                    let color = "#00FF00";
-                    const td = document.getElementById(y + ":" + x)!;
-                    td.style.backgroundColor = color;
-                });
-            };
-            btn.onmouseleave = () => {
-                scatter.symbolsPositions.forEach(([x, y]) => {
-                    const td = document.getElementById(y + ":" + x) as HTMLElementWithBaseColor;
-                    td.style.backgroundColor = td.baseColor;
-                });
-            };
-            div.appendChild(d);
+            addHighlightButton(
+                div,
+                "Scatter: " + scatter.symbolId + ", win: " + scatter.winAmount,
+                scatter.symbolsPositions,
+                "#00FF00",
+            );
         });
     }
+    if (winningClusters) {
+        Object.values(winningClusters).forEach((cluster) => {
+            addHighlightButton(
+                div,
+                "Cluster: " + cluster.symbolId + " x" + cluster.symbolsPositions.length + ", win: " + cluster.winAmount,
+                cluster.symbolsPositions,
+                "#4dc9ff",
+            );
+        });
+    }
+    if (winningValues) {
+        Object.values(winningValues).forEach((value) => {
+            addHighlightButton(
+                div,
+                "Value: " + value.symbolId + ", win: " + value.winAmount,
+                value.symbolsPositions,
+                "#ffb84d",
+            );
+        });
+    }
+    if (winningWays) {
+        Object.values(winningWays).forEach((way) => {
+            addHighlightButton(
+                div,
+                "Way: " + way.symbolId + ", ways: " + way.waysCount + ", win: " + way.winAmount,
+                way.symbolsPositions,
+                "#c94dff",
+            );
+        });
+    }
+};
+
+const highlightPositions = (positions: number[][], color: string) => {
+    positions.forEach(([x, y]) => {
+        const td = document.getElementById(y + ":" + x) as HTMLElementWithBaseColor;
+        if (td) {
+            td.style.backgroundColor = color;
+            td.baseColor = td.style.backgroundColor;
+        }
+    });
 };
 
 export const drawOutcome = (
     reelsSymbols: string[][],
     bet: number,
     credits: number,
+    totalWin: number,
     freeGamesNum: number | undefined,
     freeGamesSum: number | undefined,
     freeGamesBank: number | undefined,
     winningLines?: Record<string, WinningLineNetworkData>,
     winningScatters?: Record<string, WinningScatterNetworkData>,
+    winningClusters?: Record<string, WinningClusterNetworkData>,
+    winningValues?: Record<string, WinningValueNetworkData>,
+    winningWays?: Record<string, WinningWayNetworkData>,
 ) => {
     const reelsTable = document.getElementById("reels") as HTMLTableElement;
     drawReelsSymbols(reelsSymbols, reelsTable);
 
-    let win = 0;
-    if (winningLines && Object.values(winningLines).length > 0) {
-        win = Object.values(winningLines).reduce((sum, line) => sum + line.winAmount, 0);
-    }
-    if (winningScatters && Object.values(winningScatters).length > 0) {
-        win += Object.values(winningScatters).reduce((sum, scatter) => sum + scatter.winAmount, 0);
-    }
-    setCountersValues(credits, bet, win, freeGamesNum, freeGamesSum, freeGamesBank);
+    setCountersValues(credits, bet, totalWin, freeGamesNum, freeGamesSum, freeGamesBank);
+
+    const hasAnyWin =
+        (winningLines && Object.keys(winningLines).length > 0) ||
+        (winningScatters && Object.keys(winningScatters).length > 0) ||
+        (winningClusters && Object.keys(winningClusters).length > 0) ||
+        (winningValues && Object.keys(winningValues).length > 0) ||
+        (winningWays && Object.keys(winningWays).length > 0);
 
     const winningLinesDiv = document.getElementById("winningLines")!;
-    if (
-        (winningLines && Object.keys(winningLines).length > 0) ||
-        (winningScatters && Object.keys(winningScatters).length > 0)
-    ) {
+    if (hasAnyWin) {
         winningLinesDiv.style.display = "";
         const winningLinesListDiv = document.getElementById("winningLinesList")!;
-        drawWinningLinesList(winningLinesListDiv, winningLines, winningScatters);
+        drawWinningLinesList(winningLinesListDiv, winningLines, winningScatters, winningClusters, winningValues, winningWays);
         if (winningLines) {
             Object.keys(winningLines).forEach((lineId) => {
                 const line = winningLines[lineId];
@@ -159,15 +223,17 @@ export const drawOutcome = (
         winningLinesDiv.style.display = "none";
     }
 
-    if (winningScatters && Object.keys(winningScatters).length > 0) {
-        Object.keys(winningScatters).forEach((itemId) => {
-            const scatter = winningScatters[itemId];
-            scatter.symbolsPositions.forEach(([x, y]) => {
-                const td = document.getElementById(y + ":" + x) as HTMLElementWithBaseColor;
-                td.style.backgroundColor = "#ffda00";
-                td.baseColor = td.style.backgroundColor;
-            });
-        });
+    if (winningScatters) {
+        Object.values(winningScatters).forEach((scatter) => highlightPositions(scatter.symbolsPositions, "#ffda00"));
+    }
+    if (winningClusters) {
+        Object.values(winningClusters).forEach((cluster) => highlightPositions(cluster.symbolsPositions, "#4dc9ff"));
+    }
+    if (winningValues) {
+        Object.values(winningValues).forEach((value) => highlightPositions(value.symbolsPositions, "#ffb84d"));
+    }
+    if (winningWays) {
+        Object.values(winningWays).forEach((way) => highlightPositions(way.symbolsPositions, "#c94dff"));
     }
 };
 
@@ -191,60 +257,41 @@ export const drawReelsSymbols = (reelsSymbols: string[][], table: HTMLTableEleme
     });
 };
 
+const drawOutcomeFromData = (data: VideoSlotWithFreeGamesRoundNetworkData) => {
+    drawOutcome(
+        data.reelsSymbols,
+        data.bet,
+        data.credits,
+        data.totalWin ?? 0,
+        data.freeGamesNum,
+        data.freeGamesSum,
+        data.freeGamesBank,
+        data.winningLines,
+        data.winningScatters,
+        data.winningClusters,
+        data.winningValues,
+        data.winningWays,
+    );
+};
+
 export const play = async () => {
     (document.getElementById("playButton") as HTMLElementWithDisabled).disabled = "disabled";
     const data = (await getRoundData()) as VideoSlotWithFreeGamesRoundNetworkData;
     (document.getElementById("playButton") as HTMLElementWithDisabled).disabled = "";
-    drawOutcome(
-        data.reelsSymbols,
-        data.bet,
-        data.credits,
-        data.freeGamesNum,
-        data.freeGamesSum,
-        data.freeGamesBank,
-        data.winningLines,
-        data.winningScatters,
-    );
+    drawOutcomeFromData(data);
 };
 
 export const getAnyWin = async () => {
     const data = (await getAnyWinData()) as VideoSlotWithFreeGamesRoundNetworkData;
-    drawOutcome(
-        data.reelsSymbols,
-        data.bet,
-        data.credits,
-        data.freeGamesNum,
-        data.freeGamesSum,
-        data.freeGamesBank,
-        data.winningLines,
-        data.winningScatters,
-    );
+    drawOutcomeFromData(data);
 };
 
 export const getSymbolWin = async (itemId: string, times: number) => {
     const data = (await getSymbolWinData(itemId, times)) as VideoSlotWithFreeGamesRoundNetworkData;
-    drawOutcome(
-        data.reelsSymbols,
-        data.bet,
-        data.credits,
-        data.freeGamesNum,
-        data.freeGamesSum,
-        data.freeGamesBank,
-        data.winningLines,
-        data.winningScatters,
-    );
+    drawOutcomeFromData(data);
 };
 
 export const getCustomScenario = async (scenarioId: string) => {
     const data = (await getCustomScenarioData(scenarioId)) as VideoSlotWithFreeGamesRoundNetworkData;
-    drawOutcome(
-        data.reelsSymbols,
-        data.bet,
-        data.credits,
-        data.freeGamesNum,
-        data.freeGamesSum,
-        data.freeGamesBank,
-        data.winningLines,
-        data.winningScatters,
-    );
+    drawOutcomeFromData(data);
 };

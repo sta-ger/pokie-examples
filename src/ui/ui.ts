@@ -194,15 +194,10 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
     const reelsTable = document.getElementById("reels") as HTMLTableElement;
     drawReelsSymbols(initialData.reelsSymbols, reelsTable);
 
-    const winningLines = initialData.winningLines;
-    let win = 0;
-    if (winningLines && Object.keys(winningLines).length > 0) {
-        win = Object.values(winningLines).reduce((sum, line) => sum + line.winAmount, 0);
-    }
     setCountersValues(
         initialData.credits,
         initialData.bet,
-        win,
+        initialData.totalWin ?? 0,
         initialData.freeGamesNum,
         initialData.freeGamesSum,
         initialData.freeGamesBank,
