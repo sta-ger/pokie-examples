@@ -1,4 +1,7 @@
 export default {
+  server: {
+    host: true,
+  },
   build: {
     rollupOptions: {
       input: {
