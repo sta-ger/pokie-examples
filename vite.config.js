@@ -10,6 +10,7 @@ export default {
         page3: 'slot-with-free-games.html',
         page4: 'slot-with-sticky-respin.html',
         page5: 'cascading-cluster.html',
+        page6: 'megaways-style.html',
       },
     },
   },

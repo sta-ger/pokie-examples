@@ -18,15 +18,15 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                 table-layout: fixed;
             }
 
-            .reels-row {
-                height: 50px;
-                background-color: #dddddd;
-            }
-
             .reels-item {
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 text-align: center;
                 font-weight: bold;
                 color: #444444;
+                background-color: #dddddd;
                 border: 3px solid white;
                 overflow: hidden;
             }

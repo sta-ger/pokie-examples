@@ -1,5 +1,4 @@
 import {
-    SymbolsCombination,
     VideoSlotWithFreeGamesRoundNetworkData,
     WinningClusterNetworkData,
     WinningLineNetworkData,
@@ -241,20 +240,25 @@ export const drawReelsSymbols = (reelsSymbols: string[][], table: HTMLTableEleme
     while (table.children.length > 0) {
         table.removeChild(table.children[0]);
     }
-    const symbols = new SymbolsCombination().fromMatrix(reelsSymbols).toMatrix(true);
-    symbols.forEach((row, i) => {
-        const tr = document.createElement("tr");
-        tr.className = "reels-row";
-        row.forEach((item, j) => {
-            const td = document.createElement("td") as HTMLElementWithBaseColor;
-            td.id = i + ":" + j;
-            td.className = "reels-item";
-            td.innerText = item;
-            td.baseColor = td.style.backgroundColor;
-            tr.appendChild(td);
+    // One row, one column per reel, each column an independently-sized stack of cells - this
+    // renders a uniform grid exactly like before (every reel the same height) but also handles a
+    // jagged one (reels of different heights, e.g. VariableHeightSymbolsCombinationsGenerator)
+    // without a separate code path, since reels never need to line up row-for-row here.
+    const tr = document.createElement("tr");
+    reelsSymbols.forEach((reelSymbols, reelId) => {
+        const td = document.createElement("td");
+        td.style.verticalAlign = "top";
+        reelSymbols.forEach((item, rowId) => {
+            const cell = document.createElement("div") as HTMLElementWithBaseColor;
+            cell.id = rowId + ":" + reelId;
+            cell.className = "reels-item";
+            cell.innerText = item;
+            cell.baseColor = cell.style.backgroundColor;
+            td.appendChild(cell);
         });
-        table.appendChild(tr);
+        tr.appendChild(td);
     });
+    table.appendChild(tr);
 };
 
 const drawOutcomeFromData = (data: VideoSlotWithFreeGamesRoundNetworkData) => {
