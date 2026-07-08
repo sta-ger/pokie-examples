@@ -4,10 +4,13 @@ import {
     CascadingSpinResolver,
     ClusterWinCalculator,
     ClusterWinEvaluator,
+    LegacyWinComponent,
     SymbolsCombinationDescribing,
     VideoSlotConfigDescribing,
     VideoSlotWinCalculating,
+    WinComponent,
     WinEvaluationPipeline,
+    WinEvaluationResult,
     WinningLineDescribing,
     WinningScatterDescribing,
 } from "pokie";
@@ -56,6 +59,27 @@ export class CascadingClusterWinCalculator implements VideoSlotWinCalculating<st
 
     public getWinAmount(): number {
         return this.totalWin;
+    }
+
+    /*
+    The main grid the UI shows after a round is the pre-cascade (first) state, so only the very
+    first cascade step's clusters are meaningful to highlight there - later steps happened on
+    grids that no longer exist on screen (see the per-step accordion in games/cascading-cluster's
+    afterRoundPlayed for those). The first step's clusters keep their own natural win amounts for
+    an accurate per-cluster breakdown; a synthetic component carries whatever the later steps
+    (x2, x3, ...) added on top, so getTotalWin() still matches the round's true total exactly.
+    */
+    public getWinEvaluationResult(): WinEvaluationResult<string> {
+        const firstStepClusters = this.lastCascadeResult?.getCascadeSteps()[0]?.getWinEvaluationResult().getClusterWins() ?? [];
+        const firstStepTotal = firstStepClusters.reduce((sum, component) => sum + component.getWinAmount(), 0);
+        const remainderFromLaterSteps = this.totalWin - firstStepTotal;
+
+        const winComponents: WinComponent<string>[] = [...firstStepClusters];
+        if (remainderFromLaterSteps !== 0) {
+            winComponents.push(new LegacyWinComponent<string>(remainderFromLaterSteps, {source: "later-cascade-steps"}));
+        }
+
+        return new WinEvaluationResult<string>({clusterWins: firstStepClusters, winComponents});
     }
 
     public getWinningLines(): Record<string, WinningLineDescribing<string>> {
