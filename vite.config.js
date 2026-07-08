@@ -13,6 +13,7 @@ export default {
         page6: 'megaways-style.html',
         page7: 'growing-grid.html',
         page8: 'value-pay-multiplier.html',
+        page9: 'verifiable-spin.html',
       },
     },
   },
