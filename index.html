@@ -22,9 +22,21 @@
             section {
                 padding-top: 50px;
             }
+
+            .game-illustration {
+                padding: 10px 0;
+            }
+
+            .game-illustration svg {
+                display: block;
+            }
         </style>
 
+        
+
         <title>POKIE examples</title>
+      <script type="module" crossorigin src="./assets/page1-21655636.js"></script>
+      <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-3cfb730f.js">
     </head>
     <body>
         <div class="container">
@@ -32,6 +44,7 @@
 
             <section>
                 <h2>Simple video slot game</h2>
+                <div class="game-illustration" data-illustration="simple-slot"></div>
                 <div class="paragraph">An example of a simple 5x4 video slot game with 8 winning lines.</div>
                 <div class="paragraph">Features:</div>
                 <ul>
@@ -52,6 +65,7 @@
 
             <section>
                 <h2>Video slot with free spins</h2>
+                <div class="game-illustration" data-illustration="slot-with-free-games"></div>
                 <div class="paragraph">An example of a 5x3 video slot game with free spins.</div>
                 <div class="paragraph">Features:</div>
                 <ul>
@@ -73,6 +87,7 @@
 
             <section>
                 <h2>Video slot with sticky re-spin</h2>
+                <div class="game-illustration" data-illustration="slot-with-sticky-respin"></div>
                 <div class="paragraph">
                     An example of a 5x3 video slot game with sticky re-spin feature. Every winning combination triggers
                     the re-spin during which all the winning symbols are held on their places. The re-spins continue as
@@ -84,6 +99,7 @@
 
             <section>
                 <h2>Cascading cluster pays</h2>
+                <div class="game-illustration" data-illustration="cascading-cluster"></div>
                 <div class="paragraph">
                     An example of a cascading (tumbling) 6x5 cluster-pay video slot. Wins are groups of 5+
                     adjacent same-symbol cells rather than paylines; winning clusters are removed, the grid
@@ -96,6 +112,7 @@
 
             <section>
                 <h2>Megaways-style ways-to-win</h2>
+                <div class="game-illustration" data-illustration="megaways-style"></div>
                 <div class="paragraph">
                     An example of a Megaways-style video slot. Each of the 6 reels draws its own row count at
                     random every round (2 to 6 rows), so the grid shape changes every spin. Wins are "ways to
@@ -108,6 +125,7 @@
 
             <section>
                 <h2>Growing grid bonus</h2>
+                <div class="game-illustration" data-illustration="growing-grid"></div>
                 <div class="paragraph">
                     An example of a growing-grid feature. The 5x3 grid grows by one row on every winning round
                     (up to 5x6), giving the "Gem" scatter symbol more room to land and bigger wins more room to
@@ -119,6 +137,7 @@
 
             <section>
                 <h2>Value pay with multiplier wilds</h2>
+                <div class="game-illustration" data-illustration="value-pay-multiplier"></div>
                 <div class="paragraph">
                     An example combining two independent win styles: "Coin" symbols pay their own value for
                     every occurrence anywhere on the grid (value pay), while "WildX2"/"WildX3"/"WildX5" are
@@ -131,6 +150,7 @@
 
             <section>
                 <h2>Verifiable spin</h2>
+                <div class="game-illustration" data-illustration="verifiable-spin"></div>
                 <div class="paragraph">
                     An example of a reproducible round using SeededRandomNumberGenerator instead of the default
                     Math.random()-based RNG. A "Verify last spin" button replays the session's seed from scratch
@@ -143,6 +163,7 @@
 
             <section>
                 <h2>Mixed win evaluators</h2>
+                <div class="game-illustration" data-illustration="mixed-evaluators"></div>
                 <div class="paragraph">
                     An example evaluating the same 5x4 grid three different ways every round - fixed paylines,
                     243-style ways-to-win, and 5+-adjacent-cell clusters - and paying out whichever style wins
