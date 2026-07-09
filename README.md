@@ -51,8 +51,9 @@ in `vite.config.js`, already done here) to reach it from another device on the n
 npm run build
 ```
 
-Builds every example page into `dist/`. `npm run pages` builds and publishes `dist/` to the
-`gh-pages` branch (not automatic on push — has to be run by hand after merging to `main`).
+Builds every example page into `dist/`. Pushes to `main` automatically build and publish `dist/` to
+GitHub Pages via `.github/workflows/deploy-pages.yml`. `npm run pages` (publishing `dist/` to the
+`gh-pages` branch by hand) still works too, but isn't needed for the live demo anymore.
 
 ## Project structure
 
