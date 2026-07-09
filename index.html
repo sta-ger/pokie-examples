@@ -19,16 +19,41 @@
         ></script>
 
         <style>
-            section {
-                padding-top: 50px;
+            body {
+                background-color: #f5f6f8;
+            }
+
+            .page-header {
+                padding: 48px 0 32px;
+            }
+
+            .page-header p {
+                max-width: 640px;
+            }
+
+            .game-card {
+                border: none;
+                border-radius: 12px;
+            }
+
+            .game-card .card-body {
+                padding: 28px;
             }
 
             .game-illustration {
-                padding: 10px 0;
+                display: inline-block;
+                background-color: #f5f6f8;
+                border-radius: 8px;
+                padding: 12px 14px;
+                margin: 4px 0 16px;
             }
 
             .game-illustration svg {
                 display: block;
+            }
+
+            .game-links {
+                margin-top: 18px;
             }
         </style>
 
@@ -39,140 +64,183 @@
       <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-3cfb730f.js">
     </head>
     <body>
-        <div class="container">
-            <h1>POKIE examples</h1>
+        <div class="container" style="max-width: 760px">
+            <div class="page-header">
+                <h1>POKIE examples</h1>
+                <p class="text-muted">
+                    Video slot game mechanics implemented with
+                    <a href="https://github.com/sta-ger/pokie">POKIE</a>, a server-side video slot game logic
+                    framework for JavaScript and TypeScript.
+                </p>
+            </div>
 
-            <section>
-                <h2>Simple video slot game</h2>
-                <div class="game-illustration" data-illustration="simple-slot"></div>
-                <div class="paragraph">An example of a simple 5x4 video slot game with 8 winning lines.</div>
-                <div class="paragraph">Features:</div>
-                <ul>
-                    <li>Winning lines are counted from right to left. A line of minimum 3 winning symbols pays out.</li>
-                    <li>"Wild" is a wild symbol that substitutes any other symbol on a winning line.</li>
-                    <li>
-                        "Scatter1" is a scatter symbol that pays out 10x, 20x, or 30x the bet if 3 or more symbols
-                        appear on any positions. Only one "Scatter1" can appear on any reel.
-                    </li>
-                    <li>
-                        "Scatter2" is a stacked scatter symbol that can appear on the 3 middle reels. If all 3 middle
-                        reels are covered with "Scatter2" symbols, the game pays 100x the bet.
-                    </li>
-                </ul>
-                <a href="simple-slot.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/simple-slot">Code</a>
-            </section>
-
-            <section>
-                <h2>Video slot with free spins</h2>
-                <div class="game-illustration" data-illustration="slot-with-free-games"></div>
-                <div class="paragraph">An example of a 5x3 video slot game with free spins.</div>
-                <div class="paragraph">Features:</div>
-                <ul>
-                    <li>A minimum of 2 winning symbols on a winning line or scattered across all reels pays out.</li>
-                    <li>
-                        During free spins, symbols on a winning line are counted not only from left to right but can
-                        also be scattered across the winning line definition.
-                    </li>
-                    <li>
-                        During free spins, symbol sequences are different from the base game's ones. Sequences during
-                        free spins do not contain scatter symbols, so free spins cannot be re-triggered.
-                    </li>
-                    <li>During free spins, all wins are multiplied by x2.</li>
-                    <li>This example also demonstrates the usage of Simulation to obtain the desired game outcomes.</li>
-                </ul>
-                <a href="slot-with-free-games.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-free-games">Code</a>
-            </section>
-
-            <section>
-                <h2>Video slot with sticky re-spin</h2>
-                <div class="game-illustration" data-illustration="slot-with-sticky-respin"></div>
-                <div class="paragraph">
-                    An example of a 5x3 video slot game with sticky re-spin feature. Every winning combination triggers
-                    the re-spin during which all the winning symbols are held on their places. The re-spins continue as
-                    long as there are new wins.
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Simple video slot game</h2>
+                    <div class="game-illustration" data-illustration="simple-slot"></div>
+                    <p>An example of a simple 5x4 video slot game with 8 winning lines.</p>
+                    <p class="mb-2">Features:</p>
+                    <ul>
+                        <li>Winning lines are counted from right to left. A line of minimum 3 winning symbols pays out.</li>
+                        <li>"Wild" is a wild symbol that substitutes any other symbol on a winning line.</li>
+                        <li>
+                            "Scatter1" is a scatter symbol that pays out 10x, 20x, or 30x the bet if 3 or more symbols
+                            appear on any positions. Only one "Scatter1" can appear on any reel.
+                        </li>
+                        <li>
+                            "Scatter2" is a stacked scatter symbol that can appear on the 3 middle reels. If all 3
+                            middle reels are covered with "Scatter2" symbols, the game pays 100x the bet.
+                        </li>
+                    </ul>
+                    <div class="game-links d-flex gap-2">
+                        <a href="simple-slot.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/simple-slot" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="slot-with-sticky-respin.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-sticky-respin">Code</a>
-            </section>
+            </div>
 
-            <section>
-                <h2>Cascading cluster pays</h2>
-                <div class="game-illustration" data-illustration="cascading-cluster"></div>
-                <div class="paragraph">
-                    An example of a cascading (tumbling) 6x5 cluster-pay video slot. Wins are groups of 5+
-                    adjacent same-symbol cells rather than paylines; winning clusters are removed, the grid
-                    collapses and refills, and evaluation repeats until nothing wins. Each cascade step pays with
-                    an escalating multiplier (x1, x2, x3, ...).
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Video slot with free spins</h2>
+                    <div class="game-illustration" data-illustration="slot-with-free-games"></div>
+                    <p>An example of a 5x3 video slot game with free spins.</p>
+                    <p class="mb-2">Features:</p>
+                    <ul>
+                        <li>A minimum of 2 winning symbols on a winning line or scattered across all reels pays out.</li>
+                        <li>
+                            During free spins, symbols on a winning line are counted not only from left to right but
+                            can also be scattered across the winning line definition.
+                        </li>
+                        <li>
+                            During free spins, symbol sequences are different from the base game's ones. Sequences
+                            during free spins do not contain scatter symbols, so free spins cannot be re-triggered.
+                        </li>
+                        <li>During free spins, all wins are multiplied by x2.</li>
+                        <li>This example also demonstrates the usage of Simulation to obtain the desired game outcomes.</li>
+                    </ul>
+                    <div class="game-links d-flex gap-2">
+                        <a href="slot-with-free-games.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-free-games" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="cascading-cluster.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/cascading-cluster">Code</a>
-            </section>
+            </div>
 
-            <section>
-                <h2>Megaways-style ways-to-win</h2>
-                <div class="game-illustration" data-illustration="megaways-style"></div>
-                <div class="paragraph">
-                    An example of a Megaways-style video slot. Each of the 6 reels draws its own row count at
-                    random every round (2 to 6 rows), so the grid shape changes every spin. Wins are "ways to
-                    win" - for a symbol, the product of how many matching cells sit in each consecutive reel from
-                    the left - rather than fixed paylines.
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Video slot with sticky re-spin</h2>
+                    <div class="game-illustration" data-illustration="slot-with-sticky-respin"></div>
+                    <p>
+                        An example of a 5x3 video slot game with sticky re-spin feature. Every winning combination
+                        triggers the re-spin during which all the winning symbols are held on their places. The
+                        re-spins continue as long as there are new wins.
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="slot-with-sticky-respin.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/slot-with-sticky-respin" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="megaways-style.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/megaways-style">Code</a>
-            </section>
+            </div>
 
-            <section>
-                <h2>Growing grid bonus</h2>
-                <div class="game-illustration" data-illustration="growing-grid"></div>
-                <div class="paragraph">
-                    An example of a growing-grid feature. The 5x3 grid grows by one row on every winning round
-                    (up to 5x6), giving the "Gem" scatter symbol more room to land and bigger wins more room to
-                    happen - a losing round resets the grid back down to its starting size.
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Cascading cluster pays</h2>
+                    <div class="game-illustration" data-illustration="cascading-cluster"></div>
+                    <p>
+                        An example of a cascading (tumbling) 6x5 cluster-pay video slot. Wins are groups of 5+
+                        adjacent same-symbol cells rather than paylines; winning clusters are removed, the grid
+                        collapses and refills, and evaluation repeats until nothing wins. Each cascade step pays with
+                        an escalating multiplier (x1, x2, x3, ...).
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="cascading-cluster.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/cascading-cluster" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="growing-grid.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/growing-grid">Code</a>
-            </section>
+            </div>
 
-            <section>
-                <h2>Value pay with multiplier wilds</h2>
-                <div class="game-illustration" data-illustration="value-pay-multiplier"></div>
-                <div class="paragraph">
-                    An example combining two independent win styles: "Coin" symbols pay their own value for
-                    every occurrence anywhere on the grid (value pay), while "WildX2"/"WildX3"/"WildX5" are
-                    ordinary line wilds that also multiply whatever line win they end up part of - scoped to
-                    line wins only, so the coins are unaffected.
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Megaways-style ways-to-win</h2>
+                    <div class="game-illustration" data-illustration="megaways-style"></div>
+                    <p>
+                        An example of a Megaways-style video slot. Each of the 6 reels draws its own row count at
+                        random every round (2 to 6 rows), so the grid shape changes every spin. Wins are "ways to
+                        win" - for a symbol, the product of how many matching cells sit in each consecutive reel from
+                        the left - rather than fixed paylines.
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="megaways-style.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/megaways-style" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="value-pay-multiplier.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/value-pay-multiplier">Code</a>
-            </section>
+            </div>
 
-            <section>
-                <h2>Verifiable spin</h2>
-                <div class="game-illustration" data-illustration="verifiable-spin"></div>
-                <div class="paragraph">
-                    An example of a reproducible round using SeededRandomNumberGenerator instead of the default
-                    Math.random()-based RNG. A "Verify last spin" button replays the session's seed from scratch
-                    and confirms it reproduces the exact same stop positions - useful for dispute resolution or
-                    certification test suites, not a substitute for a secure RNG in real-money play.
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Growing grid bonus</h2>
+                    <div class="game-illustration" data-illustration="growing-grid"></div>
+                    <p>
+                        An example of a growing-grid feature. The 5x3 grid grows by one row on every winning round
+                        (up to 5x6), giving the "Gem" scatter symbol more room to land and bigger wins more room to
+                        happen - a losing round resets the grid back down to its starting size.
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="growing-grid.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/growing-grid" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="verifiable-spin.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/verifiable-spin">Code</a>
-            </section>
+            </div>
 
-            <section>
-                <h2>Mixed win evaluators</h2>
-                <div class="game-illustration" data-illustration="mixed-evaluators"></div>
-                <div class="paragraph">
-                    An example evaluating the same 5x4 grid three different ways every round - fixed paylines,
-                    243-style ways-to-win, and 5+-adjacent-cell clusters - and paying out whichever style wins
-                    the most that round. Lines/ways/clusters read from the same shared paytable, so combining
-                    them here is mostly a matter of which aggregation policy to pick.
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Value pay with multiplier wilds</h2>
+                    <div class="game-illustration" data-illustration="value-pay-multiplier"></div>
+                    <p>
+                        An example combining two independent win styles: "Coin" symbols pay their own value for
+                        every occurrence anywhere on the grid (value pay), while "WildX2"/"WildX3"/"WildX5" are
+                        ordinary line wilds that also multiply whatever line win they end up part of - scoped to
+                        line wins only, so the coins are unaffected.
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="value-pay-multiplier.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/value-pay-multiplier" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
                 </div>
-                <a href="mixed-evaluators.html">Demo</a>
-                <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/mixed-evaluators">Code</a>
-            </section>
+            </div>
+
+            <div class="card game-card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h4">Verifiable spin</h2>
+                    <div class="game-illustration" data-illustration="verifiable-spin"></div>
+                    <p>
+                        An example of a reproducible round using SeededRandomNumberGenerator instead of the default
+                        Math.random()-based RNG. A "Verify last spin" button replays the session's seed from scratch
+                        and confirms it reproduces the exact same stop positions - useful for dispute resolution or
+                        certification test suites, not a substitute for a secure RNG in real-money play.
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="verifiable-spin.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/verifiable-spin" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card game-card shadow-sm mb-5">
+                <div class="card-body">
+                    <h2 class="h4">Mixed win evaluators</h2>
+                    <div class="game-illustration" data-illustration="mixed-evaluators"></div>
+                    <p>
+                        An example evaluating the same 5x4 grid three different ways every round - fixed paylines,
+                        243-style ways-to-win, and 5+-adjacent-cell clusters - and paying out whichever style wins
+                        the most that round. Lines/ways/clusters read from the same shared paytable, so combining
+                        them here is mostly a matter of which aggregation policy to pick.
+                    </p>
+                    <div class="game-links d-flex gap-2">
+                        <a href="mixed-evaluators.html" class="btn btn-primary btn-sm">Demo</a>
+                        <a href="https://github.com/sta-ger/pokie-examples/tree/main/src/games/mixed-evaluators" class="btn btn-outline-secondary btn-sm">Code</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>
