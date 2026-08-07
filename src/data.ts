@@ -16,20 +16,6 @@ import {
 
 export type AnyVideoSlotSession = VideoSlotSession | VideoSlotWithFreeGamesSession | VideoSlotWithResizableGridSession;
 
-// Same feature-detection shape as pokie's own internal supportsBetModeSelecting -- AnyVideoSlotSession
-// never types setBetMode() itself, since bet-mode selection is an opt-in decorator
-// (VideoSlotWithBetModesSession), not part of every session's own interface.
-function supportsBetMode(
-    session: AnyVideoSlotSession,
-): session is AnyVideoSlotSession & {getBetModeId(): string; setBetMode(modeId: string): void; getAvailableBetModeIds(): string[]} {
-    const candidate = session as Partial<{getBetModeId(): string; setBetMode(modeId: string): void; getAvailableBetModeIds(): string[]}>;
-    return (
-        typeof candidate.getBetModeId === "function" &&
-        typeof candidate.setBetMode === "function" &&
-        typeof candidate.getAvailableBetModeIds === "function"
-    );
-}
-
 let localSession: AnyVideoSlotSession;
 let localSerializer: VideoSlotSessionSerializer | VideoSlotWithFreeGamesSessionSerializer;
 let localCustomScenarios: [string, string, SimulationConfig][] | undefined;
@@ -57,25 +43,8 @@ export const getInitialData = async (): Promise<
     });
 };
 
-// `bet`/`modeId` mirror pokie's own SpinCommandHandler: applied via setBet()/setBetMode() before
-// play(), so an unsupported mode (no session in this bet-mode's own getAvailableBetModeIds(), or a
-// session that never opted into bet-mode selection at all) rejects the same way a real server would
-// reject it, by throwing synchronously inside this Promise executor -- which the executor's own
-// implicit try/catch turns into a rejected promise a caller's .catch() can show as a retryable error.
-export const getRoundData = async (
-    bet?: number,
-    modeId?: string,
-): Promise<VideoSlotRoundNetworkData | VideoSlotWithFreeGamesRoundNetworkData> => {
+export const getRoundData = async (): Promise<VideoSlotRoundNetworkData | VideoSlotWithFreeGamesRoundNetworkData> => {
     return new Promise((res) => {
-        if (bet !== undefined) {
-            localSession.setBet(bet);
-        }
-        if (modeId !== undefined) {
-            if (!supportsBetMode(localSession)) {
-                throw new Error("This game does not support bet mode selection.");
-            }
-            localSession.setBetMode(modeId);
-        }
         localSession.play();
         onAfterRoundPlayed?.(localSession);
         res(localSerializer.getRoundData(localSession as VideoSlotWithFreeGamesSession));
