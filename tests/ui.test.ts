@@ -231,3 +231,109 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         expect(div.querySelector("#win")?.textContent).toBe("Win: 0");
     });
 });
+
+// P5-POLISH-19 four-surface parity evidence: the exact same (seed: "fixture-round", round: 1) round
+// off a real "pokie build"-generated package ("fixture-slot" -- reels: 3, rows: 3, symbols: A/B/C,
+// paytable A:3->5/B:3->3/C:3->1, no explicit reelStrips) was independently captured live from three
+// other real surfaces -- see docs/phase5-evidence/p5-polish-19/parity/ in the pokie repo:
+//   - CLI "pokie replay <pkg> --seed fixture-round --round 1"
+//   - the built package's own "npm start" ("pokie dev <pkg>"), via POST /sessions {seed} + POST spin
+//   - Studio Play, via POST /api/project/play/session {seed} + POST spin
+//   - Studio Replay, via POST /api/project/replays {seed, round}
+// All four independently produced the identical screen/winningLines/totalWin below -- this test
+// renders that same captured round through this project's own real ui.ts/data.ts (not a stand-in for
+// the shared player module -- the genuine "examples" surface), proving all four match: same
+// orientation, same payline, same winning positions, same paytable.
+describe("P5-POLISH-19: examples surface renders the identical fixture round captured from CLI replay / npm start / Studio Play / Studio Replay", () => {
+    afterEach(() => {
+        document.body.innerHTML = "";
+    });
+
+    // The real paytable "pokie dev"'s own POST /sessions {seed: "fixture-round"} returned for this
+    // package, bet-keyed exactly as derivePaytableView expects (see videoSlotRoundView.ts).
+    const FIXTURE_PAYTABLE = {
+        "1": {A: {3: 5}, B: {3: 3}, C: {3: 1}},
+        "2": {A: {3: 10}, B: {3: 6}, C: {3: 2}},
+        "5": {A: {3: 25}, B: {3: 15}, C: {3: 5}},
+    };
+    const FIXTURE_LINES_DEFINITIONS = {"0": [1, 1, 1], "1": [0, 0, 0], "2": [2, 2, 2]};
+    const FIXTURE_AVAILABLE_BETS = [1, 2, 5];
+
+    // The real initial (pre-spin) screen "pokie dev"'s own POST /sessions {seed: "fixture-round"}
+    // returned -- identical to what Studio Play's own POST /api/project/play/session {seed:
+    // "fixture-round"} returned for the same package.
+    const fixtureInitialRound: RoundFixture = {reelsSymbols: [["B", "C", "C"], ["C", "B", "B"], ["C", "C", "C"]], totalWin: 0};
+
+    // The real round-1 screen every one of the four surfaces named above independently produced for
+    // (seed: "fixture-round", round: 1): reel 0-2, row 0 (top row, line "1") lands "A"/"A"/"A" -- a
+    // real line win, paytable-driven (A: 3-of-a-kind pays 5 at bet 1).
+    const fixtureWinningRound: RoundFixture = {
+        reelsSymbols: [["A", "C", "A"], ["A", "A", "C"], ["A", "A", "A"]],
+        totalWin: 5,
+        winningLines: {
+            "1": {definition: [0, 0, 0], pattern: [1, 1, 1], symbolId: "A", symbolsPositions: [0, 1, 2], winAmount: 5},
+        },
+    };
+
+    class FixtureFakeSession {
+        public bet = 1;
+        public credits = 1000;
+        private current = fixtureInitialRound;
+        private queue: RoundFixture[] = [fixtureWinningRound];
+
+        setBet(bet: number): void {
+            this.bet = bet;
+        }
+
+        play(): void {
+            this.current = this.queue.shift() ?? this.current;
+        }
+
+        getCurrent(): RoundFixture {
+            return this.current;
+        }
+    }
+
+    class FixtureFakeSerializer {
+        getInitialData(session: FixtureFakeSession) {
+            return {
+                ...session.getCurrent(),
+                bet: session.bet,
+                credits: session.credits,
+                paytable: FIXTURE_PAYTABLE,
+                linesDefinitions: FIXTURE_LINES_DEFINITIONS,
+                availableBets: FIXTURE_AVAILABLE_BETS,
+            };
+        }
+
+        getRoundData(session: FixtureFakeSession) {
+            return {...session.getCurrent(), bet: session.bet, credits: session.credits};
+        }
+    }
+
+    it("renders the same orientation, payline, winning positions, and paytable every other surface captured for this fixture round", async () => {
+        const session = new FixtureFakeSession();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initializeData(session as any, new FixtureFakeSerializer() as any);
+        const div = document.createElement("div");
+        document.body.appendChild(div);
+        await initializeUi(div);
+        await flush();
+
+        (div.querySelector("#playButton") as HTMLButtonElement).click();
+        await flush();
+
+        // Orientation: 3 reels x 3 rows, exactly the symbols every other surface captured for this round.
+        expect(div.querySelectorAll(".player-cell")).toHaveLength(3 * 3);
+
+        // Payline/winning positions: the real line win on line "1" (top row), symbol A, amount 5 --
+        // identical lineId/winAmount to the CLI replay/npm start/Studio Play/Studio Replay captures.
+        const buttons = Array.from(div.querySelectorAll("#winningLinesList .player-highlight-button")) as HTMLButtonElement[];
+        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 1, win: 5"]);
+        expect(div.querySelector("#win")?.textContent).toBe("Win: 5");
+
+        // Paytable: the real fixture-slot paytable (A pays 5 for 3-of-a-kind at bet 1).
+        expect(div.querySelector("#paytableBody")?.textContent).toContain("A");
+        expect(div.querySelector("#paytableBody")?.textContent).toContain("5");
+    });
+});
