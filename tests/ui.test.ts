@@ -5,9 +5,8 @@ import {initializeUi} from "../src/ui/ui.ts";
 import {initializeData} from "../src/data.ts";
 
 // Proves this example project actually renders through pokie's own canonical
-// "pokie/client/player" surface (see vite.config.js/tsconfig.json's own alias for how that
-// specifier resolves here, and cli/client/player/renderPlayer.ts for the functions under test) --
-// not a fork of it -- by driving the real, migrated ui.ts/data.ts against a fully controlled fake
+// "pokie/client/player" package export (see cli/client/player/renderPlayer.ts for the functions
+// under test) -- not a fork of it -- by driving the real, migrated ui.ts/data.ts against a fully controlled fake
 // session+serializer, the same way tests/server/spin/SpinCommandHandler.test.ts's own fakes control
 // pokie's server-side session boundary.
 

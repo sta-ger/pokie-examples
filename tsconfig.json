@@ -13,12 +13,6 @@
     "isolatedModules": true,
     "noEmit": true,
 
-    /* Mirrors vite.config.js's own "pokie/client/player" alias, for type-checking */
-    "baseUrl": ".",
-    "paths": {
-      "pokie/client/player": ["/workspace/cli/client/player/index.ts"]
-    },
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

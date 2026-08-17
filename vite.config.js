@@ -1,19 +1,4 @@
-import path from "node:path";
-
-// "pokie/client/player" isn't published under the installed "pokie" npm dependency yet -- this
-// resolves it straight to the sibling pokie checkout's own source (same container, see that repo's
-// own companion_workspace wiring for this task) so this example project renders every game with the
-// exact same canonical player/runtime adapter pokie's own cli/client/main.ts renders with, not a
-// fork of it. Swap for a real "pokie/client/player" package resolution once that subpath ships in a
-// published pokie release.
-const pokieClientPlayerPath = path.resolve("/workspace/cli/client/player/index.ts");
-
 export default {
-  resolve: {
-    alias: {
-      "pokie/client/player": pokieClientPlayerPath,
-    },
-  },
   server: {
     host: true,
   },
