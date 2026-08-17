@@ -19,6 +19,7 @@ type Elements = {
     reelsContainer: HTMLElement;
     credits: HTMLElement;
     win: HTMLElement;
+    payoutMultiplier: HTMLElement;
     betInfo: HTMLElement;
     modeInfo: HTMLElement;
     fgCounters: HTMLElement;
@@ -61,6 +62,7 @@ function queryElements(div: HTMLDivElement): Elements {
         reelsContainer: requireElement(div, "reelsContainer"),
         credits: requireElement(div, "credits"),
         win: requireElement(div, "win"),
+        payoutMultiplier: requireElement(div, "payoutMultiplier"),
         betInfo: requireElement(div, "betInfo"),
         modeInfo: requireElement(div, "modeInfo"),
         fgCounters: requireElement(div, "fgCounters"),
@@ -101,8 +103,13 @@ function renderRound(
 ): void {
     const response = data as VideoSlotRoundResponse;
     const highlights = deriveWinHighlights(response);
+    const totalWin = deriveTotalWin(response);
+    const bet = typeof response.bet === "number" ? response.bet : selectedBet;
     renderPlayerRound(
         {
+            credits: elements.credits,
+            totalWin: elements.win,
+            payoutMultiplier: elements.payoutMultiplier,
             gridContainer: elements.reelsContainer,
             winsSection: elements.winningLinesSection,
             winsList: elements.winningLinesList,
@@ -114,6 +121,13 @@ function renderRound(
             paytableBody: elements.paytableBody,
         },
         {
+            credits: data.credits,
+            totalWin,
+            payoutMultiplier: totalWin !== undefined && bet !== undefined && bet !== 0 ? totalWin / bet : undefined,
+            creditsLabel: "Credits: ",
+            totalWinLabel: "Win: ",
+            payoutMultiplierLabel: "Win multiple: ",
+            payoutMultiplierSuffix: "x",
             reelsSymbols: data.reelsSymbols,
             highlights,
             featureCounters: deriveFeatureCounters(response),
@@ -128,8 +142,6 @@ function renderRound(
         },
     );
 
-    elements.credits.textContent = "Credits: " + data.credits;
-    elements.win.textContent = "Win: " + (deriveTotalWin(response) ?? 0);
 }
 
 function describeError(error: unknown): {readable: string; detail: string} {
@@ -266,6 +278,7 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                 <div style="display: flex; justify-content: center;">
                     <div id="credits" style="flex: 1; text-align: center;">Credits</div>
                     <div id="win" style="flex: 1; text-align: center;">Win</div>
+                    <div id="payoutMultiplier" style="flex: 1; text-align: center;">Win multiple</div>
                 </div>
                 <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
                     <div id="betInfo" class="player-bet-info"></div>

@@ -156,6 +156,9 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         const {div} = await renderExample(lineAndScatterWinRound, []);
 
         const canonical = {
+            credits: document.createElement("div"),
+            totalWin: document.createElement("div"),
+            payoutMultiplier: document.createElement("div"),
             gridContainer: document.createElement("div"),
             winsSection: document.createElement("section"),
             winsList: document.createElement("div"),
@@ -168,6 +171,7 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         };
         const response = {
             ...lineAndScatterWinRound,
+            credits: 980,
             paytable: PAYTABLE,
             linesDefinitions: LINES_DEFINITIONS,
             availableBets: AVAILABLE_BETS,
@@ -176,18 +180,28 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
             betModeId: "base",
         } as unknown as player.VideoSlotRoundResponse;
         player.renderPlayerRound(canonical, {
+            credits: 980,
+            totalWin: player.deriveTotalWin(response),
+            payoutMultiplier: player.deriveTotalWin(response)! / 20,
+            creditsLabel: "Credits: ",
+            totalWinLabel: "Win: ",
+            payoutMultiplierLabel: "Win multiple: ",
+            payoutMultiplierSuffix: "x",
             reelsSymbols: response.reelsSymbols,
             highlights: player.deriveWinHighlights(response),
             featureCounters: player.deriveFeatureCounters(response),
             lines: player.deriveLineDefinitions(response.linesDefinitions),
             paytable: player.derivePaytableView(response.paytable),
             availableBets: player.deriveAvailableBets(response.availableBets),
-            currentBet: response.bet,
+            currentBet: 20,
             availableModeIds: player.deriveAvailableBetModeIds(response.availableBetModeIds),
             currentModeId: player.deriveBetModeId(response.betModeId),
         });
 
         expect(div.querySelector("#reelsContainer")?.innerHTML).toBe(canonical.gridContainer.innerHTML);
+        expect(div.querySelector("#credits")?.textContent).toBe(canonical.credits.textContent);
+        expect(div.querySelector("#win")?.textContent).toBe(canonical.totalWin.textContent);
+        expect(div.querySelector("#payoutMultiplier")?.textContent).toBe(canonical.payoutMultiplier.textContent);
         expect(div.querySelector("#winningLines")?.hidden).toBe(canonical.winsSection.hidden);
         expect(div.querySelector("#winningLinesList")?.innerHTML).toBe(canonical.winsList.innerHTML);
         expect(div.querySelector("#linesDefinitionsList")?.innerHTML).toBe(canonical.linesList.innerHTML);
@@ -216,6 +230,7 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         const buttons = Array.from(div.querySelectorAll("#winningLinesList .player-highlight-button")) as HTMLButtonElement[];
         expect(buttons.map((b) => b.textContent)).toEqual(["Line: 0, win: 40", "Scatter: Scatter1, win: 60"]);
         expect(div.querySelector("#win")?.textContent).toBe("Win: 100");
+        expect(div.querySelector("#payoutMultiplier")?.textContent).toBe("Win multiple: 5x");
     });
 
     it("lets a player pick one of the session's own available bets, and re-spins staked at it", async () => {
