@@ -15,6 +15,7 @@ export default {
         page8: 'value-pay-multiplier.html',
         page9: 'verifiable-spin.html',
         page10: 'mixed-evaluators.html',
+        page11: 'fixture-slot.html',
       },
     },
   },

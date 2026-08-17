@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as player from "pokie/client/player";
 import {initializeUi} from "../src/ui/ui.ts";
 import {initializeData} from "../src/data.ts";
+import {createFixtureSession, FIXTURE_SEED} from "../src/games/fixture-slot/index.ts";
 
 // Proves this example project actually renders through pokie's own canonical
 // "pokie/client/player" package export (see cli/client/player/renderPlayer.ts for the functions
@@ -348,60 +349,41 @@ describe("P5-POLISH-19: examples surface renders the identical fixture round cap
         expect(studioPlaySpin.winningPositions).toEqual(npmStartSpin.winningPositions);
     });
 
-    class FixtureFakeSession {
-        public bet = npmStartSession.bet;
-        public credits = npmStartSession.credits;
-        private current: RoundFixture = npmStartSession;
-        private queue: RoundFixture[] = [npmStartSpin];
-
-        setBet(bet: number): void {
-            this.bet = bet;
-        }
-
-        play(): void {
-            this.current = this.queue.shift() ?? this.current;
-        }
-
-        getCurrent(): RoundFixture {
-            return this.current;
-        }
-    }
-
-    class FixtureFakeSerializer {
-        getInitialData(session: FixtureFakeSession) {
-            return {...session.getCurrent(), bet: session.bet, credits: session.credits};
-        }
-
-        getRoundData(session: FixtureFakeSession) {
-            return {...session.getCurrent(), bet: session.bet, credits: session.credits};
-        }
-    }
-
-    it("renders the same orientation, payline, winning positions, and paytable every other surface captured for this fixture round", async () => {
-        const session = new FixtureFakeSession();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        initializeData(session as any, new FixtureFakeSerializer() as any);
+    it("reaches the captured fixture round through the public Play control with no DOM or state injection", async () => {
+        const {session, serializer} = createFixtureSession();
+        initializeData(session, serializer);
         const div = document.createElement("div");
         document.body.appendChild(div);
         await initializeUi(div);
         await flush();
 
+        expect(FIXTURE_SEED).toBe("fixture-round");
         (div.querySelector("#playButton") as HTMLButtonElement).click();
         await flush();
 
         // Orientation: 3 reels x 3 rows, exactly the symbols every other surface captured for this round.
         expect(div.querySelectorAll(".player-cell")).toHaveLength(3 * 3);
+        expect(Array.from(div.querySelectorAll(".player-cell")).map((cell) => cell.textContent)).toEqual([
+            "A", "C", "A",
+            "A", "A", "C",
+            "A", "A", "A",
+        ]);
 
         // Payline/winning positions: the real line win on line "1" (top row), symbol A, amount 5 --
         // identical lineId/winAmount to the CLI replay/Studio Play/Studio Replay captures cross-checked
         // above.
         const buttons = Array.from(div.querySelectorAll("#winningLinesList .player-highlight-button")) as HTMLButtonElement[];
         expect(buttons.map((b) => b.textContent)).toEqual(["Line: 1, win: 5"]);
+        expect((div.querySelector('[data-cell="0:0"]') as HTMLElement).style.backgroundColor).not.toBe("");
+        expect((div.querySelector('[data-cell="0:1"]') as HTMLElement).style.backgroundColor).not.toBe("");
+        expect((div.querySelector('[data-cell="0:2"]') as HTMLElement).style.backgroundColor).not.toBe("");
         expect(div.querySelector("#win")?.textContent).toBe("Win: 5");
 
         // Paytable: the real fixture-slot paytable (A pays 5 for 3-of-a-kind at bet 1), read straight
         // from the captured session response, not retyped.
         expect(div.querySelector("#paytableBody")?.textContent).toContain("A");
         expect(div.querySelector("#paytableBody")?.textContent).toContain("5");
+        expect(div.querySelector("#credits")?.textContent).toBe("Credits: 1004");
+        expect(div.querySelector("#payoutMultiplier")?.textContent).toBe("Win multiple: 5x");
     });
 });
