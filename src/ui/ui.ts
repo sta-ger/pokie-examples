@@ -1,16 +1,4 @@
-import {
-    applyPersistentHighlights,
-    clearConnectionError,
-    renderBetInfo,
-    renderConnectionError,
-    renderFeatureCounters,
-    renderLineDefinitionsList,
-    renderModeInfo,
-    renderPaytable,
-    renderReelsGrid,
-    renderWinHighlightsList,
-    renderWinsSection,
-} from "pokie/client/player";
+import {clearConnectionError, renderConnectionError, renderPlayerRound} from "pokie/client/player";
 import {
     deriveAvailableBetModeIds,
     deriveAvailableBets,
@@ -112,21 +100,36 @@ function renderRound(
     onSelectMode: (modeId: string) => void,
 ): void {
     const response = data as VideoSlotRoundResponse;
-    renderReelsGrid(elements.reelsContainer, data.reelsSymbols);
-
     const highlights = deriveWinHighlights(response);
-    applyPersistentHighlights(elements.reelsContainer, highlights);
-    renderWinsSection(elements.winningLinesSection, highlights.length > 0);
-    renderWinHighlightsList(elements.winningLinesList, elements.reelsContainer, highlights);
+    renderPlayerRound(
+        {
+            gridContainer: elements.reelsContainer,
+            winsSection: elements.winningLinesSection,
+            winsList: elements.winningLinesList,
+            linesList: elements.linesDefinitionsList,
+            features: elements.fgCounters,
+            betInfo: elements.betInfo,
+            modeInfo: elements.modeInfo,
+            paytableHead: elements.paytableHead,
+            paytableBody: elements.paytableBody,
+        },
+        {
+            reelsSymbols: data.reelsSymbols,
+            highlights,
+            featureCounters: deriveFeatureCounters(response),
+            lines: staticView.lines,
+            paytable: staticView.paytable,
+            availableBets: staticView.availableBets,
+            currentBet: selectedBet,
+            onSelectBet,
+            availableModeIds: staticView.availableBetModeIds,
+            currentModeId: selectedMode,
+            onSelectMode,
+        },
+    );
 
     elements.credits.textContent = "Credits: " + data.credits;
     elements.win.textContent = "Win: " + (deriveTotalWin(response) ?? 0);
-
-    renderFeatureCounters(elements.fgCounters, deriveFeatureCounters(response));
-    renderBetInfo(elements.betInfo, staticView.availableBets, selectedBet, onSelectBet);
-    renderModeInfo(elements.modeInfo, staticView.availableBetModeIds, selectedMode, onSelectMode);
-    renderLineDefinitionsList(elements.linesDefinitionsList, elements.reelsContainer, staticView.lines);
-    renderPaytable(elements.paytableHead, elements.paytableBody, staticView.paytable);
 }
 
 function describeError(error: unknown): {readable: string; detail: string} {

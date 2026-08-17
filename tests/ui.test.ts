@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import * as player from "pokie/client/player";
 import {initializeUi} from "../src/ui/ui.ts";
 import {initializeData} from "../src/data.ts";
 
@@ -149,6 +150,52 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         expect(div.querySelector(".player-grid")).not.toBeNull();
         expect(div.querySelectorAll(".player-cell")).toHaveLength(5 * 4);
         expect(div.querySelector("#reels")).toBeNull();
+    });
+
+    it("renders a deterministic round through renderPlayerRound with the same Player DOM as a direct canonical render", async () => {
+        const {div} = await renderExample(lineAndScatterWinRound, []);
+
+        const canonical = {
+            gridContainer: document.createElement("div"),
+            winsSection: document.createElement("section"),
+            winsList: document.createElement("div"),
+            linesList: document.createElement("div"),
+            features: document.createElement("dl"),
+            betInfo: document.createElement("div"),
+            modeInfo: document.createElement("div"),
+            paytableHead: document.createElement("tr"),
+            paytableBody: document.createElement("tbody"),
+        };
+        const response = {
+            ...lineAndScatterWinRound,
+            paytable: PAYTABLE,
+            linesDefinitions: LINES_DEFINITIONS,
+            availableBets: AVAILABLE_BETS,
+            availableBetModeIds: AVAILABLE_BET_MODE_IDS,
+            bet: 20,
+            betModeId: "base",
+        } as unknown as player.VideoSlotRoundResponse;
+        player.renderPlayerRound(canonical, {
+            reelsSymbols: response.reelsSymbols,
+            highlights: player.deriveWinHighlights(response),
+            featureCounters: player.deriveFeatureCounters(response),
+            lines: player.deriveLineDefinitions(response.linesDefinitions),
+            paytable: player.derivePaytableView(response.paytable),
+            availableBets: player.deriveAvailableBets(response.availableBets),
+            currentBet: response.bet,
+            availableModeIds: player.deriveAvailableBetModeIds(response.availableBetModeIds),
+            currentModeId: player.deriveBetModeId(response.betModeId),
+        });
+
+        expect(div.querySelector("#reelsContainer")?.innerHTML).toBe(canonical.gridContainer.innerHTML);
+        expect(div.querySelector("#winningLines")?.hidden).toBe(canonical.winsSection.hidden);
+        expect(div.querySelector("#winningLinesList")?.innerHTML).toBe(canonical.winsList.innerHTML);
+        expect(div.querySelector("#linesDefinitionsList")?.innerHTML).toBe(canonical.linesList.innerHTML);
+        expect(div.querySelector("#fgCounters")?.innerHTML).toBe(canonical.features.innerHTML);
+        expect(div.querySelector("#betInfo")?.innerHTML).toBe(canonical.betInfo.innerHTML);
+        expect(div.querySelector("#modeInfo")?.innerHTML).toBe(canonical.modeInfo.innerHTML);
+        expect(div.querySelector("#paytableHead")?.innerHTML).toBe(canonical.paytableHead.innerHTML);
+        expect(div.querySelector("#paytableBody")?.innerHTML).toBe(canonical.paytableBody.innerHTML);
     });
 
     it("renders a winning payline via the shared player's win-highlight list", async () => {
