@@ -50,6 +50,19 @@ Opens a Vite dev server; `index.html` links to every example. `npm run dev` rema
 shortcut. Pass `--host` (or set it permanently in `vite.config.js`, already done here) to reach it
 from another device on the network.
 
+## POKIE Studio and the dev client
+
+The repository root is also a runnable POKIE game package. Its entry is the deterministic Fixture
+Slot, so the normal POKIE tools can load it without a separate build step:
+
+```
+npx pokie dev .
+```
+
+This opens the standalone dev client for the Fixture Slot. To start POKIE Studio's first-time
+project workflow, run `npx pokie` with no project argument; create or open a project there, then
+use its Play, Simulation, Replay, Build, Outcome, and Stake tabs.
+
 ## Building
 
 ```
