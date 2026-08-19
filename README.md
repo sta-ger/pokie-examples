@@ -43,11 +43,12 @@ video slot game logic framework for JavaScript and TypeScript.
 
 ```
 npm install
-npm run dev
+npm start
 ```
 
-Opens a Vite dev server; `index.html` links to every example. Pass `--host` (or set it permanently
-in `vite.config.js`, already done here) to reach it from another device on the network.
+Opens a Vite dev server; `index.html` links to every example. `npm run dev` remains an equivalent
+shortcut. Pass `--host` (or set it permanently in `vite.config.js`, already done here) to reach it
+from another device on the network.
 
 ## Building
 
