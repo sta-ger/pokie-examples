@@ -1,46 +1,228 @@
+import {clearConnectionError, renderConnectionError, renderPlayerRound} from "pokie/client/player";
 import {
-    drawReelsSymbols,
-    getAnyWin,
-    getCustomScenario,
-    getSymbolWin,
-    HTMLElementWithBaseColor,
-    play,
-    setCountersValues,
-} from "./utils.ts";
-import {VideoSlotWithFreeGamesInitialNetworkData} from "pokie";
-import {getInitialData} from "../data.ts";
+    deriveAvailableBetModeIds,
+    deriveAvailableBets,
+    deriveBetModeId,
+    deriveFeatureCounters,
+    deriveLineDefinitions,
+    derivePaytableView,
+    deriveTotalWin,
+    deriveWinHighlights,
+    LineDefinitionView,
+    PaytableView,
+    VideoSlotRoundResponse,
+} from "pokie/client/player";
+import {VideoSlotWithFreeGamesInitialNetworkData, VideoSlotWithFreeGamesRoundNetworkData} from "pokie";
+import {getAnyWinData, getCustomScenarioData, getInitialData, getRoundData, getSymbolWinData} from "../data.ts";
 
+type Elements = {
+    reelsContainer: HTMLElement;
+    credits: HTMLElement;
+    win: HTMLElement;
+    payoutMultiplier: HTMLElement;
+    betInfo: HTMLElement;
+    modeInfo: HTMLElement;
+    fgCounters: HTMLElement;
+    winningLinesSection: HTMLElement;
+    winningLinesList: HTMLElement;
+    linesDefinitionsList: HTMLElement;
+    paytableHead: HTMLElement;
+    paytableBody: HTMLElement;
+    playButton: HTMLButtonElement;
+    playWinButton: HTMLButtonElement;
+    dropDownList: HTMLElement;
+    roundError: HTMLElement;
+    roundErrorMessage: HTMLElement;
+    roundErrorDetail: HTMLElement;
+    roundRetryButton: HTMLButtonElement;
+    roundReconnectButton: HTMLButtonElement;
+};
+
+// Everything this example needs to know about a game's own static, round-independent shape --
+// captured once right after connecting (see cli/client/main.ts's own StaticVideoSlotView, which this
+// mirrors), since a round response only ever carries what changed, not the paytable/lines/available
+// bets and modes all over again.
+type StaticVideoSlotView = {
+    paytable: PaytableView | undefined;
+    lines: LineDefinitionView[];
+    availableBets: number[];
+    availableBetModeIds: string[];
+};
+
+function requireElement<T extends HTMLElement>(div: HTMLDivElement, id: string): T {
+    const el = div.querySelector<T>(`#${id}`);
+    if (el === null) {
+        throw new Error(`Missing #${id} in the example's own markup.`);
+    }
+    return el;
+}
+
+function queryElements(div: HTMLDivElement): Elements {
+    return {
+        reelsContainer: requireElement(div, "reelsContainer"),
+        credits: requireElement(div, "credits"),
+        win: requireElement(div, "win"),
+        payoutMultiplier: requireElement(div, "payoutMultiplier"),
+        betInfo: requireElement(div, "betInfo"),
+        modeInfo: requireElement(div, "modeInfo"),
+        fgCounters: requireElement(div, "fgCounters"),
+        winningLinesSection: requireElement(div, "winningLines"),
+        winningLinesList: requireElement(div, "winningLinesList"),
+        linesDefinitionsList: requireElement(div, "linesDefinitionsList"),
+        paytableHead: requireElement(div, "paytableHead"),
+        paytableBody: requireElement(div, "paytableBody"),
+        playButton: requireElement(div, "playButton"),
+        playWinButton: requireElement(div, "playWinButton"),
+        dropDownList: requireElement(div, "dropDownList"),
+        roundError: requireElement(div, "roundError"),
+        roundErrorMessage: requireElement(div, "roundErrorMessage"),
+        roundErrorDetail: requireElement(div, "roundErrorDetail"),
+        roundRetryButton: requireElement(div, "roundRetryButton"),
+        roundReconnectButton: requireElement(div, "roundReconnectButton"),
+    };
+}
+
+function deriveStaticVideoSlotView(data: VideoSlotWithFreeGamesInitialNetworkData): StaticVideoSlotView {
+    const view = data as VideoSlotRoundResponse;
+    return {
+        paytable: derivePaytableView(view.paytable),
+        lines: deriveLineDefinitions(view.linesDefinitions),
+        availableBets: deriveAvailableBets(view.availableBets),
+        availableBetModeIds: deriveAvailableBetModeIds(view.availableBetModeIds),
+    };
+}
+
+function renderRound(
+    elements: Elements,
+    data: VideoSlotWithFreeGamesRoundNetworkData,
+    staticView: StaticVideoSlotView,
+    selectedBet: number | undefined,
+    onSelectBet: (bet: number) => void,
+    selectedMode: string | undefined,
+    onSelectMode: (modeId: string) => void,
+): void {
+    const response = data as VideoSlotRoundResponse;
+    const highlights = deriveWinHighlights(response);
+    const totalWin = deriveTotalWin(response);
+    const bet = typeof response.bet === "number" ? response.bet : selectedBet;
+    renderPlayerRound(
+        {
+            credits: elements.credits,
+            totalWin: elements.win,
+            payoutMultiplier: elements.payoutMultiplier,
+            gridContainer: elements.reelsContainer,
+            winsSection: elements.winningLinesSection,
+            winsList: elements.winningLinesList,
+            linesList: elements.linesDefinitionsList,
+            features: elements.fgCounters,
+            betInfo: elements.betInfo,
+            modeInfo: elements.modeInfo,
+            paytableHead: elements.paytableHead,
+            paytableBody: elements.paytableBody,
+        },
+        {
+            credits: data.credits,
+            totalWin,
+            payoutMultiplier: totalWin !== undefined && bet !== undefined && bet !== 0 ? totalWin / bet : undefined,
+            creditsLabel: "Credits: ",
+            totalWinLabel: "Win: ",
+            payoutMultiplierLabel: "Win multiple: ",
+            payoutMultiplierSuffix: "x",
+            reelsSymbols: data.reelsSymbols,
+            highlights,
+            featureCounters: deriveFeatureCounters(response),
+            lines: staticView.lines,
+            paytable: staticView.paytable,
+            availableBets: staticView.availableBets,
+            currentBet: selectedBet,
+            onSelectBet,
+            availableModeIds: staticView.availableBetModeIds,
+            currentModeId: selectedMode,
+            onSelectMode,
+        },
+    );
+
+}
+
+function describeError(error: unknown): {readable: string; detail: string} {
+    const message = error instanceof Error ? error.message : String(error);
+    const detail = error instanceof Error && error.stack ? error.stack : message;
+    return {readable: message, detail};
+}
+
+const PLAYER_STYLE = `
+    #reelsContainer {
+        width: 100%;
+    }
+
+    .player-grid {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .player-reel {
+        vertical-align: top;
+    }
+
+    .player-cell {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: bold;
+        color: #444444;
+        background-color: #dddddd;
+        border: 3px solid white;
+        overflow: hidden;
+    }
+
+    .player-highlight-item {
+        display: inline-block;
+        padding-right: 20px;
+        padding-bottom: 20px;
+    }
+
+    .player-highlight-button {
+        font-size: inherit;
+    }
+
+    .player-bet-current,
+    .player-mode-current {
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+
+    .player-bet-options,
+    .player-mode-options {
+        display: inline-flex;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+
+    .player-bet-option-selected,
+    .player-mode-option-selected {
+        font-weight: bold;
+    }
+
+    .paragraph {
+        padding-top: 20px;
+    }
+
+    @media (max-width: 480px) {
+        .player-cell {
+            font-size: 12px;
+        }
+    }
+`;
+
+// Builds this example's own page shell (title, bootstrap, reels/bet/mode/paytable markup) once, then
+// hands every game-round render off to the same "pokie/client/player" surface cli/client/main.ts
+// renders with -- see that module's own render()/renderVideoSlotRound() for the CLI-side counterpart
+// of what this function's runRound()/renderRound() do here.
 export const initializeUi = async (div: HTMLDivElement, customScenarios?: [string, string][]) => {
     const style = document.createElement("style");
-    style.innerText = `
-            #reels {
-                width: 100%;
-                table-layout: fixed;
-            }
-
-            .reels-item {
-                height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                font-weight: bold;
-                color: #444444;
-                background-color: #dddddd;
-                border: 3px solid white;
-                overflow: hidden;
-            }
-
-            .paragraph {
-                padding-top: 20px;
-            }
-
-            @media (max-width: 480px) {
-                .reels-item {
-                    font-size: 12px;
-                }
-            }
-    `;
+    style.textContent = PLAYER_STYLE;
     style.id = "ui-style";
 
     if (!document.getElementById("ui-style")) {
@@ -78,21 +260,31 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                 <a href="index.html" class="text-decoration-none">&larr; All examples</a>
             </div>
 
+            <div class="paragraph" id="roundError" style="display: none">
+                <p id="roundErrorMessage"></p>
+                <details>
+                    <summary>Technical details</summary>
+                    <pre id="roundErrorDetail"></pre>
+                </details>
+                <button id="roundRetryButton" type="button" class="btn btn-secondary btn-sm">Retry</button>
+                <button id="roundReconnectButton" type="button" class="btn btn-secondary btn-sm">Reconnect</button>
+            </div>
+
             <div class="paragraph">
-                <table id="reels" class="reels"></table>
+                <div id="reelsContainer"></div>
             </div>
 
             <div class="paragraph">
                 <div style="display: flex; justify-content: center;">
                     <div id="credits" style="flex: 1; text-align: center;">Credits</div>
-                    <div id="bet" style="flex: 1; text-align: center;">Bet</div>
                     <div id="win" style="flex: 1; text-align: center;">Win</div>
+                    <div id="payoutMultiplier" style="flex: 1; text-align: center;">Win multiple</div>
                 </div>
-                <div id="fgCounters" style="display: flex; justify-content: center;">
-                    <div id="fgNum" style="flex: 1; text-align: center">FG num: 0</div>
-                    <div id="fgSum" style="flex: 1; text-align: center">FG sum: 10</div>
-                    <div id="fgBank" style="flex: 1; text-align: center">FG bank: 1000</div>
+                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <div id="betInfo" class="player-bet-info"></div>
+                    <div id="modeInfo" class="player-mode-info"></div>
                 </div>
+                <dl id="fgCounters" class="d-flex justify-content-center gap-3" hidden></dl>
             </div>
 
             <div class="paragraph">
@@ -119,8 +311,8 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                 </div>
             </div>
 
-            
-            <div class="paragraph" id="winningLines" style="display: none">
+
+            <div class="paragraph" id="winningLines" hidden>
                 <h4>Winning lines</h4>
                 <div class="paragraph" id="winningLinesList"></div>
             </div>
@@ -139,7 +331,7 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                         <div id="collapseLinesDefinitions" class="accordion-collapse collapse" aria-labelledby="headingLinesDefinitions"
                              data-bs-parent="#accordionMath">
                             <div id="linesDefinitionsList" class="accordion-body" >
-                                
+
                             </div>
                         </div>
                     </div>
@@ -169,13 +361,79 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
                     </div>
                 <div>
             <div>
-           
+
         `;
 
-    const initialData = (await getInitialData()) as VideoSlotWithFreeGamesInitialNetworkData;
+    const elements = queryElements(div);
 
-    const ddList = document.getElementById("dropDownList")!;
-    const pt = initialData.paytable["10"];
+    const initialData = (await getInitialData()) as VideoSlotWithFreeGamesInitialNetworkData;
+    const staticView = deriveStaticVideoSlotView(initialData);
+
+    let selectedBet: number | undefined = typeof initialData.bet === "number" ? initialData.bet : staticView.availableBets[0];
+    let selectedMode: string | undefined = deriveBetModeId((initialData as VideoSlotRoundResponse).betModeId) ?? staticView.availableBetModeIds[0];
+
+    const rerender = (data: VideoSlotWithFreeGamesRoundNetworkData): void => {
+        renderRound(
+            elements,
+            data,
+            staticView,
+            selectedBet,
+            (bet) => {
+                selectedBet = bet;
+                runRound(() => getRoundData(selectedBet, selectedMode));
+            },
+            selectedMode,
+            (modeId) => {
+                selectedMode = modeId;
+                runRound(() => getRoundData(selectedBet, selectedMode));
+            },
+        );
+    };
+
+    // Runs one round-producing action (a spin, a "play until any win" simulation, a custom scenario,
+    // ...), rendering its result on success or a retryable error -- via the exact same
+    // renderConnectionError/clearConnectionError pair cli/client/main.ts's own attemptSpin() shows a
+    // failed spin with -- on failure. "Retry" re-runs this same action; "Reconnect" discards it and
+    // re-renders the game's last-known-good initial data instead, the same fallback cli/client's own
+    // reconnect() falls back to a fresh session for.
+    const runRound = (action: () => Promise<VideoSlotWithFreeGamesRoundNetworkData>): void => {
+        elements.playButton.disabled = true;
+        elements.playWinButton.disabled = true;
+        action()
+            .then((data) => {
+                clearConnectionError(elements.roundError);
+                rerender(data);
+            })
+            .catch((error: unknown) => {
+                const {readable, detail} = describeError(error);
+                renderConnectionError(
+                    {
+                        container: elements.roundError,
+                        message: elements.roundErrorMessage,
+                        detail: elements.roundErrorDetail,
+                        retryButton: elements.roundRetryButton,
+                    },
+                    `Round failed: ${readable}`,
+                    detail,
+                    () => runRound(action),
+                );
+                elements.roundReconnectButton.onclick = () => {
+                    clearConnectionError(elements.roundError);
+                    rerender(initialData);
+                };
+            })
+            .finally(() => {
+                elements.playButton.disabled = false;
+                elements.playWinButton.disabled = false;
+            });
+    };
+
+    rerender(initialData);
+
+    elements.playButton.onclick = () => runRound(() => getRoundData(selectedBet, selectedMode));
+    elements.playWinButton.onclick = () => runRound(() => getAnyWinData() as Promise<VideoSlotWithFreeGamesRoundNetworkData>);
+
+    const pt = initialData.paytable["10"] ?? Object.values(initialData.paytable)[0];
     Object.keys(pt).forEach((itemId) => {
         const entry = pt[itemId];
         Object.keys(entry).forEach((times) => {
@@ -183,100 +441,20 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
             const a = document.createElement("a");
             a.className = "dropdown-item";
             a.innerText = 'Symbol "' + itemId + '" x ' + times;
-            a.onclick = () => getSymbolWin(itemId, intTimes);
+            a.onclick = () => runRound(() => getSymbolWinData(itemId, intTimes) as Promise<VideoSlotWithFreeGamesRoundNetworkData>);
             const li = document.createElement("li");
             li.appendChild(a);
-            ddList.appendChild(li);
+            elements.dropDownList.appendChild(li);
         });
     });
-
-    document.getElementById("playButton")!.onclick = () => play();
-    document.getElementById("playWinButton")!.onclick = () => getAnyWin();
-
-    const reelsTable = document.getElementById("reels") as HTMLTableElement;
-    drawReelsSymbols(initialData.reelsSymbols, reelsTable);
-
-    setCountersValues(
-        initialData.credits,
-        initialData.bet,
-        initialData.totalWin ?? 0,
-        initialData.freeGamesNum,
-        initialData.freeGamesSum,
-        initialData.freeGamesBank,
-    );
 
     customScenarios?.forEach((scenario) => {
         const a = document.createElement("a");
         a.className = "dropdown-item";
         a.innerText = scenario[1];
-        a.id = `scenario-${scenario[0]}`;
+        a.onclick = () => runRound(() => getCustomScenarioData(scenario[0]) as Promise<VideoSlotWithFreeGamesRoundNetworkData>);
         const li = document.createElement("li");
         li.appendChild(a);
-        ddList.appendChild(li);
-    });
-
-    document.querySelectorAll('[id^="scenario-"]').forEach((element) => {
-        const e = element as HTMLElement;
-        e.onclick = () => getCustomScenario(e.id.replace("scenario-", ""));
-    });
-
-    const ptBetData = Object.values(initialData.paytable)[0];
-    const ptMlt = new Set<number>();
-    Object.values(ptBetData).forEach((symbolData) => {
-        Object.keys(symbolData).forEach((mlt) => ptMlt.add(parseInt(mlt)));
-    });
-
-    const ptHead = document.getElementById("paytableHead")!;
-    ptMlt.forEach((mlt) => {
-        const th = document.createElement("th");
-        th.scope = "col";
-        th.innerText = mlt.toString();
-        ptHead.appendChild(th);
-    });
-
-    const ptBody = document.getElementById("paytableBody")!;
-
-    Object.keys(ptBetData).forEach((symbolId) => {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.innerText = symbolId;
-        tr.appendChild(td);
-        ptMlt.forEach((mlt) => {
-            const td = document.createElement("td");
-            td.innerText = ptBetData[symbolId][mlt] ? ptBetData[symbolId][mlt].toString() : "";
-            tr.appendChild(td);
-        });
-        ptBody.appendChild(tr);
-    });
-
-    const linesDefinitionsDiv = document.getElementById("linesDefinitionsList")!;
-    while (linesDefinitionsDiv.children.length > 0) {
-        linesDefinitionsDiv.removeChild(linesDefinitionsDiv.children[0]);
-    }
-
-    Object.keys(initialData.linesDefinitions).forEach((lineId) => {
-        const definition = initialData.linesDefinitions[lineId];
-        const d = document.createElement("div");
-        const btn = document.createElement("button");
-        btn.innerText = "Line: " + lineId;
-        btn.className = "btn btn-secondary btn-sm";
-        d.style.paddingRight = "20px";
-        d.style.paddingBottom = "20px";
-        d.style.display = "inline-block";
-        d.appendChild(btn);
-        btn.onmouseenter = () => {
-            definition.forEach((y, x) => {
-                const color = "#999999";
-                const td = document.getElementById(y + ":" + x)!;
-                td.style.backgroundColor = color;
-            });
-        };
-        btn.onmouseleave = () => {
-            definition.forEach((y, x) => {
-                const td = document.getElementById(y + ":" + x) as HTMLElementWithBaseColor;
-                td.style.backgroundColor = td.baseColor;
-            });
-        };
-        linesDefinitionsDiv.appendChild(d);
+        elements.dropDownList.appendChild(li);
     });
 };

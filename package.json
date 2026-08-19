@@ -4,6 +4,7 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
+        "start": "vite",
         "dev": "vite",
         "build": "tsc && vite build",
         "preview": "vite preview",
@@ -16,6 +17,6 @@
         "vite": "^4.3.9"
     },
     "dependencies": {
-        "pokie": "^1.2.0"
+        "pokie": "^1.3.0"
     }
 }
