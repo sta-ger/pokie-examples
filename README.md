@@ -34,6 +34,10 @@ video slot game logic framework for JavaScript and TypeScript.
 - **Mixed win evaluators** [[Demo](https://sta-ger.github.io/pokie-examples/mixed-evaluators.html)]
   [[Code](src/games/mixed-evaluators)] — the same grid evaluated as lines, ways, and clusters at
   once, paid by whichever wins the most.
+- **Fixture Slot — deterministic Player round** [[Demo](https://sta-ger.github.io/pokie-examples/fixture-slot.html)]
+  [[Code](src/games/fixture-slot)] — a compact seeded 3×3 game whose Play control renders through
+  POKIE's public `client/player` surface. It is the shared parity fixture for generated-package,
+  Studio Play, and Replay round presentation.
 
 ## Running locally
 
