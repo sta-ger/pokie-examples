@@ -3,9 +3,6 @@
     "private": true,
     "version": "0.0.0",
     "type": "module",
-    "pokie": {
-        "entry": "./src/studio-fixture-game.js"
-    },
     "scripts": {
         "start": "vite",
         "dev": "vite",
