@@ -22,7 +22,7 @@ import {
     VideoSlotConfig,
     VideoSlotSession,
     VideoSlotSessionSerializer,
-} from "pokie";
+} from "pokie/browser";
 
 /*
 Let's create the game configuration.

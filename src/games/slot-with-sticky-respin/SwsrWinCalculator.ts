@@ -1,4 +1,4 @@
-import {SymbolsCombinationDescribing, SymbolsCombinationsAnalyzer, VideoSlotWinCalculator} from "pokie";
+import {SymbolsCombinationDescribing, SymbolsCombinationsAnalyzer, VideoSlotWinCalculator} from "pokie/browser";
 import {SymbolPosition} from "./SwsrCombinationsGenerator.ts";
 
 export class SwsrWinCalculator extends VideoSlotWinCalculator {

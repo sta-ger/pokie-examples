@@ -12,7 +12,7 @@ import {
     PaytableView,
     VideoSlotRoundResponse,
 } from "pokie/client/player";
-import {VideoSlotWithFreeGamesInitialNetworkData, VideoSlotWithFreeGamesRoundNetworkData} from "pokie";
+import {VideoSlotWithFreeGamesInitialNetworkData, VideoSlotWithFreeGamesRoundNetworkData} from "pokie/browser";
 import {getAnyWinData, getCustomScenarioData, getInitialData, getRoundData, getSymbolWinData} from "../data.ts";
 
 type Elements = {

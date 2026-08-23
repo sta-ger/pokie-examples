@@ -3,7 +3,7 @@ import {
     SymbolsCombinationDescribing,
     SymbolsCombinationsAnalyzer,
     SymbolsCombinationsGenerator,
-} from "pokie";
+} from "pokie/browser";
 
 export type SymbolPosition = {
     x: number;

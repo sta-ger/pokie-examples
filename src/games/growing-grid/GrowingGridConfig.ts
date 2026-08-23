@@ -1,4 +1,4 @@
-import {LinesDefinitionsFor5x3, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie";
+import {LinesDefinitionsFor5x3, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie/browser";
 
 const gemCountMultiplier = (count: number): number => {
     if (count <= 4) return 1;

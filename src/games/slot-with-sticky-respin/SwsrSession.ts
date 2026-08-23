@@ -1,4 +1,4 @@
-import {VideoSlotWithFreeGamesConfig, VideoSlotWithFreeGamesSession} from "pokie";
+import {VideoSlotWithFreeGamesConfig, VideoSlotWithFreeGamesSession} from "pokie/browser";
 import {SwsrCombinationsGenerator} from "./SwsrCombinationsGenerator.ts";
 import {SwsrWinCalculator} from "./SwsrWinCalculator.ts";
 

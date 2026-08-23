@@ -3,7 +3,7 @@ An example of a 5x3 video slot game with sticky re-spin feature. Every winning c
 during which all the winning symbols are held on their places. The re-spins continue as long as there are new wins.
 */
 
-import {LinesDefinitionsFor5x3, VideoSlotWithFreeGamesConfig, VideoSlotWithFreeGamesSessionSerializer} from "pokie";
+import {LinesDefinitionsFor5x3, VideoSlotWithFreeGamesConfig, VideoSlotWithFreeGamesSessionSerializer} from "pokie/browser";
 import {SwsrWinCalculator} from "./SwsrWinCalculator.ts";
 import {SwsrSession} from "./SwsrSession.ts";
 import {SwsrCombinationsGenerator} from "./SwsrCombinationsGenerator.ts";

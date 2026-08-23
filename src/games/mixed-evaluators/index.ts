@@ -15,7 +15,7 @@ import {
     VideoSlotSessionSerializer,
     VideoSlotWinCalculator,
     WaysWinCalculator,
-} from "pokie";
+} from "pokie/browser";
 import {MixedEvaluatorsConfig} from "./MixedEvaluatorsConfig.ts";
 
 const config = new MixedEvaluatorsConfig();

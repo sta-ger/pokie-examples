@@ -5,7 +5,7 @@ import {
     VideoSlotConfig,
     VideoSlotSession,
     VideoSlotSessionSerializer,
-} from "pokie";
+} from "pokie/browser";
 
 export const FIXTURE_SEED = "fixture-round";
 

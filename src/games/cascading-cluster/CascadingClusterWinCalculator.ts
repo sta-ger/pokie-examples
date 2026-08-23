@@ -13,7 +13,7 @@ import {
     WinEvaluationResult,
     WinningLineDescribing,
     WinningScatterDescribing,
-} from "pokie";
+} from "pokie/browser";
 import {CascadingClusterConfig} from "./CascadingClusterConfig.ts";
 
 /*

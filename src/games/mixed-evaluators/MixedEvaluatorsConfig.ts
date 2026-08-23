@@ -1,4 +1,4 @@
-import {LinesDefinitionsFor5x4, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie";
+import {LinesDefinitionsFor5x4, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie/browser";
 
 // Lines, ways, and clusters all read from the exact same bet->symbol->count-of-matches paytable
 // map (see docs/paytable-and-wins.md) - there's no separate data shape per win style. The default

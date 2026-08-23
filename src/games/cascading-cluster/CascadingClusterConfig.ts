@@ -1,4 +1,4 @@
-import {Paytable, SymbolsSequence, VideoSlotConfig} from "pokie";
+import {Paytable, SymbolsSequence, VideoSlotConfig} from "pokie/browser";
 
 /*
 Cluster-pay symbol multiplier tiers, applied to every symbol across the whole possible cluster-size

@@ -13,7 +13,7 @@ Features:
   highlighted on it.
 */
 
-import {SymbolsCombinationsGenerator, VideoSlotSession, VideoSlotSessionSerializer} from "pokie";
+import {SymbolsCombinationsGenerator, VideoSlotSession, VideoSlotSessionSerializer} from "pokie/browser";
 import {AnyVideoSlotSession} from "../../data.ts";
 import {CascadingClusterConfig} from "./CascadingClusterConfig.ts";
 import {CascadingClusterWinCalculator} from "./CascadingClusterWinCalculator.ts";
