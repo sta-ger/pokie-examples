@@ -12,6 +12,7 @@ import {
     VideoSlotWithFreeGamesSession,
     VideoSlotWithFreeGamesSessionSerializer,
     VideoSlotWithResizableGridSession,
+    type BetModeSelecting,
 } from "pokie";
 
 export type AnyVideoSlotSession = VideoSlotSession | VideoSlotWithFreeGamesSession | VideoSlotWithResizableGridSession;
@@ -50,6 +51,23 @@ export const getRoundData = async (): Promise<VideoSlotRoundNetworkData | VideoS
         res(localSerializer.getRoundData(localSession as VideoSlotWithFreeGamesSession));
     });
 };
+
+// The package Player reports raw choice values through its callbacks.  Examples apply those choices
+// to the same live local session that Play/scenario actions consume, then return the serializer's
+// authoritative current view so a control never becomes a cosmetic selection.
+export function selectBet(bet: number): VideoSlotInitialNetworkData | VideoSlotWithFreeGamesInitialNetworkData {
+    localSession.setBet(bet);
+    return localSerializer.getInitialData(localSession as VideoSlotWithFreeGamesSession);
+}
+
+export function selectBetMode(modeId: string): VideoSlotInitialNetworkData | VideoSlotWithFreeGamesInitialNetworkData | undefined {
+    const modeSelecting = localSession as Partial<BetModeSelecting>;
+    if (typeof modeSelecting.setBetMode !== "function") {
+        return undefined;
+    }
+    modeSelecting.setBetMode(modeId);
+    return localSerializer.getInitialData(localSession as VideoSlotWithFreeGamesSession);
+}
 
 export const getSymbolWinData = async (itemId: string, times: number) => {
     return new Promise((res) => {
