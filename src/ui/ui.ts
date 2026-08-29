@@ -39,6 +39,8 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
             credits: typeof round.credits === "number" ? round.credits : undefined,
             totalWin,
             payoutMultiplier: totalWin !== undefined && bet !== undefined && bet !== 0 ? totalWin / bet : undefined,
+            formatTotalWin: (value) => value.toFixed(2),
+            formatPayoutMultiplier: (value) => value.toFixed(2),
             reelsSymbols: round.reelsSymbols ?? [],
             highlights: deriveWinHighlights(round),
             featureCounters: deriveFeatureCounters(round),
