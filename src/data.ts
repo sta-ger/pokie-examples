@@ -93,6 +93,19 @@ export const getAnyWinData = async () => {
 };
 
 export const getCustomScenarioData = async (scenarioId: string) => {
+    // PC-12's shared fixture must use the same one-spin-at-a-time feature search as Studio's public
+    // Find free games action. Simulation normally makes an initial setup spin before its own loop,
+    // which is appropriate for instructional examples but would make the seeded parity round differ.
+    if (scenarioId === "fg" && localSession instanceof VideoSlotWithFreeGamesSession) {
+        for (let attempt = 0; attempt < 100000; attempt++) {
+            localSession.play();
+            if (localSession.getWonFreeGamesNumber() > 0) {
+                onAfterRoundPlayed?.(localSession);
+                return localSerializer.getRoundData(localSession);
+            }
+        }
+        throw new Error("No free-games round was found within 100000 spins.");
+    }
     return new Promise((res) => {
         const simulationConfig = localCustomScenarios?.find((entry) => entry[0] === scenarioId)!;
         res(runSimulation(simulationConfig[2]));

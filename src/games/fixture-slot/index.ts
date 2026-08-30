@@ -1,27 +1,19 @@
 import {
-    SeededRandomNumberGenerator,
-    SymbolsCombinationsGenerator,
+    createPc12FreeGamesFixtureSession,
+    PC_12_FEATURED_ROUND_SEED,
     VideoSlotWithFreeGamesSession,
     VideoSlotWithFreeGamesSessionSerializer,
 } from "pokie";
 import {
     customScenarios,
 } from "../slot-with-free-games/index.ts";
-import {SwfgConfig} from "../slot-with-free-games/SwfgConfig.ts";
-import {SwfgSession} from "../slot-with-free-games/SwfgSession.ts";
-import {SwfgSessionWinCalculator} from "../slot-with-free-games/SwfgSessionWinCalculator.ts";
 
-// The fixture entry point keeps its identity stable for browser parity captures.
-export const FIXTURE_SEED = "fixture-round";
+// Studio's PC-12 package fixture imports this exact public factory too.  Keep the consumer's
+// seed visible here so the browser runner can attest one same-game, same-round contract.
+export const FIXTURE_SEED = PC_12_FEATURED_ROUND_SEED;
 
 export function createFixtureSession(): VideoSlotWithFreeGamesSession {
-    // The free-games example owns this playable configuration. It exposes the same real custom
-    // scenario Studio's public Find free games control drives, so parity uses a featured round rather
-    // than synthetic feature markup. Each page gets an isolated, seeded production session: its reels,
-    // wins and scenario search are repeatable at either browser viewport.
-    const config = new SwfgConfig();
-    const generator = new SymbolsCombinationsGenerator(config, new SeededRandomNumberGenerator(0x5eedc0de));
-    return new SwfgSession(config, generator, new SwfgSessionWinCalculator(config));
+    return createPc12FreeGamesFixtureSession(FIXTURE_SEED);
 }
 
 export const fixtureSessionSerializer = new VideoSlotWithFreeGamesSessionSerializer();
