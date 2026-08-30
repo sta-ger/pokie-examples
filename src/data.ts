@@ -96,7 +96,10 @@ export const getCustomScenarioData = async (scenarioId: string) => {
     // PC-12's shared fixture must use the same one-spin-at-a-time feature search as Studio's public
     // Find free games action. Simulation normally makes an initial setup spin before its own loop,
     // which is appropriate for instructional examples but would make the seeded parity round differ.
-    if (scenarioId === "fg" && localSession instanceof VideoSlotWithFreeGamesSession) {
+    // The fixture can be served from an isolated install of the candidate package while this module
+    // is transformed by Vite.  Use the feature capability rather than constructor identity, which
+    // can differ across those otherwise equivalent module instances.
+    if (scenarioId === "fg" && typeof (localSession as Partial<VideoSlotWithFreeGamesSession>).getWonFreeGamesNumber === "function") {
         for (let attempt = 0; attempt < 100000; attempt++) {
             localSession.play();
             if (localSession.getWonFreeGamesNumber() > 0) {
