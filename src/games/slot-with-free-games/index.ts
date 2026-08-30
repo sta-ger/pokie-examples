@@ -17,7 +17,7 @@ import {
     SymbolsCombinationsGenerator,
     VideoSlotSession,
     VideoSlotWithFreeGamesSessionSerializer,
-} from "pokie";
+} from "pokie/browser";
 import {SwfgConfig} from "./SwfgConfig.ts";
 import {SwfgSession} from "./SwfgSession.ts";
 import {SwfgSessionWinCalculator} from "./SwfgSessionWinCalculator.ts";

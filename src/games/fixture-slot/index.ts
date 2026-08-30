@@ -3,7 +3,7 @@ import {
     PC_12_FEATURED_ROUND_SEED,
     VideoSlotWithFreeGamesSession,
     VideoSlotWithFreeGamesSessionSerializer,
-} from "pokie";
+} from "pokie/browser";
 import {
     customScenarios,
 } from "../slot-with-free-games/index.ts";

@@ -6,7 +6,7 @@ import {
     WinningLineDescribing,
     WinningScatter,
     WinningScatterDescribing,
-} from "pokie";
+} from "pokie/browser";
 
 export class SwfgSessionWinCalculator extends VideoSlotWinCalculator {
     private static config: SwfgConfig;

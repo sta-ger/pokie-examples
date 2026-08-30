@@ -13,7 +13,7 @@ import {
     VideoSlotWithFreeGamesSessionSerializer,
     VideoSlotWithResizableGridSession,
     type BetModeSelecting,
-} from "pokie";
+} from "pokie/browser";
 
 export type AnyVideoSlotSession = VideoSlotSession | VideoSlotWithFreeGamesSession | VideoSlotWithResizableGridSession;
 

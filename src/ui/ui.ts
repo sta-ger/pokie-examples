@@ -11,7 +11,7 @@ import {
     renderPlayerRound,
     type VideoSlotRoundResponse,
 } from "pokie/client/player";
-import {VideoSlotWithFreeGamesInitialNetworkData, type VideoSlotWithFreeGamesRoundNetworkData} from "pokie";
+import {VideoSlotWithFreeGamesInitialNetworkData, type VideoSlotWithFreeGamesRoundNetworkData} from "pokie/browser";
 import {getInitialData, selectBet, selectBetMode} from "../data.ts";
 import {getAnyWin, getCustomScenario, getSymbolWin, play, setRoundRenderer} from "./utils.ts";
 

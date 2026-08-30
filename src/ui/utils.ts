@@ -1,4 +1,4 @@
-import type {VideoSlotWithFreeGamesRoundNetworkData} from "pokie";
+import type {VideoSlotWithFreeGamesRoundNetworkData} from "pokie/browser";
 import {getAnyWinData, getCustomScenarioData, getRoundData, getSymbolWinData} from "../data.ts";
 
 // Examples obtain real rounds locally, but only the package Player renders them.

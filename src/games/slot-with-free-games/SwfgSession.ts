@@ -1,4 +1,4 @@
-import {SymbolsCombinationsGenerating, VideoSlotWinCalculating, VideoSlotWithFreeGamesSession} from "pokie";
+import {SymbolsCombinationsGenerating, VideoSlotWinCalculating, VideoSlotWithFreeGamesSession} from "pokie/browser";
 import {SwfgConfig} from "./SwfgConfig.ts";
 
 export class SwfgSession extends VideoSlotWithFreeGamesSession {
