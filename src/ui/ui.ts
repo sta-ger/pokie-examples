@@ -70,24 +70,30 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
     }
     const elements = createPlayerRoundElements(playerRoot);
     const render = (round: VideoSlotRoundResponse) => {
-        const totalWin = deriveTotalWin(round);
-        const bet = typeof round.bet === "number" ? round.bet : undefined;
+        // Round payloads intentionally contain only changing session state.  The canonical player
+        // also needs the session's stable presentation data (paytable and paylines), exactly as
+        // Studio carries it alongside its RoundArtifact presentation.  Keep that initial contract
+        // when applying each round instead of letting an otherwise equivalent settled round lose
+        // its player-owned table and line controls.
+        const playerRound = {...initialData, ...round};
+        const totalWin = deriveTotalWin(playerRound);
+        const bet = typeof playerRound.bet === "number" ? playerRound.bet : undefined;
         renderPlayerRound(elements, {
-            credits: typeof round.credits === "number" ? round.credits : undefined,
+            credits: typeof playerRound.credits === "number" ? playerRound.credits : undefined,
             totalWin,
             payoutMultiplier: totalWin !== undefined && bet !== undefined && bet !== 0 ? totalWin / bet : undefined,
             formatTotalWin: (value) => value.toFixed(2),
             formatPayoutMultiplier: (value) => value.toFixed(2),
-            reelsSymbols: round.reelsSymbols ?? [],
-            highlights: deriveWinHighlights(round),
-            featureCounters: deriveFeatureCounters(round),
-            lines: deriveLineDefinitions(round.linesDefinitions),
-            paytable: derivePaytableView(round.paytable),
-            availableBets: deriveAvailableBets(round.availableBets),
+            reelsSymbols: playerRound.reelsSymbols ?? [],
+            highlights: deriveWinHighlights(playerRound),
+            featureCounters: deriveFeatureCounters(playerRound),
+            lines: deriveLineDefinitions(playerRound.linesDefinitions),
+            paytable: derivePaytableView(playerRound.paytable),
+            availableBets: deriveAvailableBets(playerRound.availableBets),
             currentBet: bet,
             onSelectBet: (nextBet) => render(selectBet(nextBet)),
-            availableModeIds: deriveAvailableBetModeIds(round.availableBetModeIds),
-            currentModeId: deriveBetModeId(round.betModeId),
+            availableModeIds: deriveAvailableBetModeIds(playerRound.availableBetModeIds),
+            currentModeId: deriveBetModeId(playerRound.betModeId),
             onSelectMode: (nextModeId) => {
                 const selected = selectBetMode(nextModeId);
                 if (selected !== undefined) {
