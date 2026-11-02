@@ -82,6 +82,19 @@ export const getRoundData = async (
     });
 };
 
+export function selectBet(bet: number): VideoSlotInitialNetworkData | VideoSlotWithFreeGamesInitialNetworkData {
+    localSession.setBet(bet);
+    return localSerializer.getInitialData(localSession as VideoSlotWithFreeGamesSession);
+}
+
+export function selectBetMode(modeId: string): VideoSlotInitialNetworkData | VideoSlotWithFreeGamesInitialNetworkData | undefined {
+    if (!supportsBetMode(localSession)) {
+        return undefined;
+    }
+    localSession.setBetMode(modeId);
+    return localSerializer.getInitialData(localSession as VideoSlotWithFreeGamesSession);
+}
+
 export const getSymbolWinData = async (itemId: string, times: number) => {
     return new Promise((res) => {
         localSession.play();
@@ -106,6 +119,18 @@ export const getAnyWinData = async () => {
 };
 
 export const getCustomScenarioData = async (scenarioId: string) => {
+    // Match the shared fixture's public feature search without an extra setup spin.
+    const featureSession = localSession as Partial<VideoSlotWithFreeGamesSession>;
+    if (scenarioId === "fg" && typeof featureSession.getWonFreeGamesNumber === "function") {
+        for (let attempt = 0; attempt < 100000; attempt++) {
+            localSession.play();
+            if (featureSession.getWonFreeGamesNumber() > 0) {
+                onAfterRoundPlayed?.(localSession);
+                return localSerializer.getRoundData(localSession as VideoSlotWithFreeGamesSession);
+            }
+        }
+        throw new Error("No free-games round was found within 100000 spins.");
+    }
     return new Promise((res) => {
         const simulationConfig = localCustomScenarios?.find((entry) => entry[0] === scenarioId)!;
         res(runSimulation(simulationConfig[2]));

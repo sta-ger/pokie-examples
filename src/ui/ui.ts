@@ -1,4 +1,3 @@
-import {clearConnectionError, renderConnectionError, renderPlayerRound} from "pokie/client/player";
 import {
     deriveAvailableBetModeIds,
     deriveAvailableBets,
@@ -8,453 +7,176 @@ import {
     derivePaytableView,
     deriveTotalWin,
     deriveWinHighlights,
-    LineDefinitionView,
-    PaytableView,
-    VideoSlotRoundResponse,
+    createPlayerRoundElements,
+    renderPlayerRound,
+    clearConnectionError,
+    renderConnectionError,
+    isVideoSlotRoundResponse,
+    type VideoSlotRoundResponse,
 } from "pokie/client/player";
-import {VideoSlotWithFreeGamesInitialNetworkData, VideoSlotWithFreeGamesRoundNetworkData} from "pokie/browser";
-import {getAnyWinData, getCustomScenarioData, getInitialData, getRoundData, getSymbolWinData} from "../data.ts";
+import {VideoSlotWithFreeGamesInitialNetworkData, type VideoSlotWithFreeGamesRoundNetworkData} from "pokie/browser";
+import {getInitialData, selectBet, selectBetMode} from "../data.ts";
+import {getAnyWin, getCustomScenario, getSymbolWin, play, setRoundRenderer} from "./utils.ts";
 
-type Elements = {
-    reelsContainer: HTMLElement;
-    credits: HTMLElement;
-    win: HTMLElement;
-    payoutMultiplier: HTMLElement;
-    betInfo: HTMLElement;
-    modeInfo: HTMLElement;
-    fgCounters: HTMLElement;
-    winningLinesSection: HTMLElement;
-    winningLinesList: HTMLElement;
-    linesDefinitionsList: HTMLElement;
-    paytableHead: HTMLElement;
-    paytableBody: HTMLElement;
-    playButton: HTMLButtonElement;
-    playWinButton: HTMLButtonElement;
-    dropDownList: HTMLElement;
-    roundError: HTMLElement;
-    roundErrorMessage: HTMLElement;
-    roundErrorDetail: HTMLElement;
-    roundRetryButton: HTMLButtonElement;
-    roundReconnectButton: HTMLButtonElement;
-};
+export const EXAMPLES_UI_STYLE_ID = "pokie-examples-ui-presentation";
 
-// Everything this example needs to know about a game's own static, round-independent shape --
-// captured once right after connecting (see cli/client/main.ts's own StaticVideoSlotView, which this
-// mirrors), since a round response only ever carries what changed, not the paytable/lines/available
-// bets and modes all over again.
-type StaticVideoSlotView = {
-    paytable: PaytableView | undefined;
-    lines: LineDefinitionView[];
-    availableBets: number[];
-    availableBetModeIds: string[];
-};
-
-function requireElement<T extends HTMLElement>(div: HTMLDivElement, id: string): T {
-    const el = div.querySelector<T>(`#${id}`);
-    if (el === null) {
-        throw new Error(`Missing #${id} in the example's own markup.`);
-    }
-    return el;
-}
-
-function queryElements(div: HTMLDivElement): Elements {
-    return {
-        reelsContainer: requireElement(div, "reelsContainer"),
-        credits: requireElement(div, "credits"),
-        win: requireElement(div, "win"),
-        payoutMultiplier: requireElement(div, "payoutMultiplier"),
-        betInfo: requireElement(div, "betInfo"),
-        modeInfo: requireElement(div, "modeInfo"),
-        fgCounters: requireElement(div, "fgCounters"),
-        winningLinesSection: requireElement(div, "winningLines"),
-        winningLinesList: requireElement(div, "winningLinesList"),
-        linesDefinitionsList: requireElement(div, "linesDefinitionsList"),
-        paytableHead: requireElement(div, "paytableHead"),
-        paytableBody: requireElement(div, "paytableBody"),
-        playButton: requireElement(div, "playButton"),
-        playWinButton: requireElement(div, "playWinButton"),
-        dropDownList: requireElement(div, "dropDownList"),
-        roundError: requireElement(div, "roundError"),
-        roundErrorMessage: requireElement(div, "roundErrorMessage"),
-        roundErrorDetail: requireElement(div, "roundErrorDetail"),
-        roundRetryButton: requireElement(div, "roundRetryButton"),
-        roundReconnectButton: requireElement(div, "roundReconnectButton"),
-    };
-}
-
-function deriveStaticVideoSlotView(data: VideoSlotWithFreeGamesInitialNetworkData): StaticVideoSlotView {
-    const view = data as VideoSlotRoundResponse;
-    return {
-        paytable: derivePaytableView(view.paytable),
-        lines: deriveLineDefinitions(view.linesDefinitions),
-        availableBets: deriveAvailableBets(view.availableBets),
-        availableBetModeIds: deriveAvailableBetModeIds(view.availableBetModeIds),
-    };
-}
-
-function renderRound(
-    elements: Elements,
-    data: VideoSlotWithFreeGamesRoundNetworkData,
-    staticView: StaticVideoSlotView,
-    selectedBet: number | undefined,
-    onSelectBet: (bet: number) => void,
-    selectedMode: string | undefined,
-    onSelectMode: (modeId: string) => void,
-): void {
-    const response = data as VideoSlotRoundResponse;
-    const highlights = deriveWinHighlights(response);
-    const totalWin = deriveTotalWin(response);
-    const bet = typeof response.bet === "number" ? response.bet : selectedBet;
-    renderPlayerRound(
-        {
-            credits: elements.credits,
-            totalWin: elements.win,
-            payoutMultiplier: elements.payoutMultiplier,
-            gridContainer: elements.reelsContainer,
-            winsSection: elements.winningLinesSection,
-            winsList: elements.winningLinesList,
-            linesList: elements.linesDefinitionsList,
-            features: elements.fgCounters,
-            betInfo: elements.betInfo,
-            modeInfo: elements.modeInfo,
-            paytableHead: elements.paytableHead,
-            paytableBody: elements.paytableBody,
-        },
-        {
-            credits: data.credits,
-            totalWin,
-            payoutMultiplier: totalWin !== undefined && bet !== undefined && bet !== 0 ? totalWin / bet : undefined,
-            creditsLabel: "Credits: ",
-            totalWinLabel: "Win: ",
-            payoutMultiplierLabel: "Win multiple: ",
-            payoutMultiplierSuffix: "x",
-            reelsSymbols: data.reelsSymbols,
-            highlights,
-            featureCounters: deriveFeatureCounters(response),
-            lines: staticView.lines,
-            paytable: staticView.paytable,
-            availableBets: staticView.availableBets,
-            currentBet: selectedBet,
-            onSelectBet,
-            availableModeIds: staticView.availableBetModeIds,
-            currentModeId: selectedMode,
-            onSelectMode,
-        },
-    );
-
-}
-
-function describeError(error: unknown): {readable: string; detail: string} {
-    const message = error instanceof Error ? error.message : String(error);
-    const detail = error instanceof Error && error.stack ? error.stack : message;
-    return {readable: message, detail};
-}
-
-const PLAYER_STYLE = `
-    #reelsContainer {
-        width: 100%;
-    }
-
-    .player-grid {
-        width: 100%;
-        table-layout: fixed;
-    }
-
-    .player-reel {
-        vertical-align: top;
-    }
-
-    .player-cell {
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-weight: bold;
-        color: #444444;
-        background-color: #dddddd;
-        border: 3px solid white;
-        overflow: hidden;
-    }
-
-    .player-highlight-item {
-        display: inline-block;
-        padding-right: 20px;
-        padding-bottom: 20px;
-    }
-
-    .player-highlight-button {
-        font-size: inherit;
-    }
-
-    .player-bet-current,
-    .player-mode-current {
-        font-weight: bold;
-        margin-right: 0.5rem;
-    }
-
-    .player-bet-options,
-    .player-mode-options {
-        display: inline-flex;
-        gap: 0.35rem;
-        flex-wrap: wrap;
-    }
-
-    .player-bet-option-selected,
-    .player-mode-option-selected {
-        font-weight: bold;
-    }
-
-    .paragraph {
-        padding-top: 20px;
-    }
-
-    @media (max-width: 480px) {
-        .player-cell {
-            font-size: 12px;
-        }
-    }
+// The examples used to load Bootstrap dynamically from this shared entrypoint. Keep the outer
+// example controls self-contained instead: a package consumer should not need a CDN script merely
+// to make Play, Win and Scenarios usable. Player-specific markup and styles remain exclusively in
+// pokie/client/player.
+const EXAMPLES_UI_CSS = `
+.pokie-examples-ui { box-sizing: border-box; width: min(100% - 2rem, 600px); margin: 0 auto; color: #212529; font-family: system-ui, sans-serif; }
+.pokie-examples-ui *, .pokie-examples-ui *::before, .pokie-examples-ui *::after { box-sizing: border-box; }
+.pokie-examples-ui-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 1.5rem 0 .75rem; margin-bottom: .5rem; border-bottom: 1px solid #dee2e6; }
+.pokie-examples-ui-header h1 { margin: 0; font-size: 1.25rem; }
+.pokie-examples-ui a { color: #0d6efd; text-decoration: none; }
+.pokie-examples-ui a:hover { text-decoration: underline; }
+.pokie-examples-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; padding-top: 1rem; }
+.pokie-examples-ui-button { appearance: none; border: 1px solid transparent; border-radius: .375rem; padding: .5rem 1rem; font: inherit; font-weight: 600; line-height: 1.5; cursor: pointer; }
+.pokie-examples-ui-button:focus-visible, .pokie-examples-scenarios-item:focus-visible { outline: 3px solid rgba(13, 110, 253, .35); outline-offset: 2px; }
+.pokie-examples-ui-button:disabled { cursor: not-allowed; opacity: .65; }
+.pokie-examples-play { color: #fff; background: #0d6efd; border-color: #0d6efd; }
+.pokie-examples-play:hover:not(:disabled) { background: #0b5ed7; border-color: #0a58ca; }
+.pokie-examples-scenarios { position: relative; margin-left: auto; }
+.pokie-examples-scenarios-toggle { color: #fff; background: #6c757d; border-color: #6c757d; }
+.pokie-examples-scenarios-toggle:hover { background: #5c636a; border-color: #565e64; }
+.pokie-examples-scenarios-menu { position: absolute; z-index: 1; right: 0; min-width: 14rem; margin: .25rem 0 0; padding: .35rem 0; list-style: none; background: #fff; border: 1px solid rgba(0, 0, 0, .15); border-radius: .375rem; box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15); }
+.pokie-examples-scenarios-menu[hidden] { display: none; }
+.pokie-examples-scenarios-item { display: block; width: 100%; border: 0; padding: .35rem 1rem; color: #212529; background: transparent; text-align: left; font: inherit; cursor: pointer; }
+.pokie-examples-scenarios-item:hover { background: #e9ecef; }
+@media (max-width: 480px) { .pokie-examples-ui-header { align-items: flex-start; flex-direction: column; } .pokie-examples-scenarios { margin-left: 0; } }
 `;
 
-// Builds this example's own page shell (title, bootstrap, reels/bet/mode/paytable markup) once, then
-// hands every game-round render off to the same "pokie/client/player" surface cli/client/main.ts
-// renders with -- see that module's own render()/renderVideoSlotRound() for the CLI-side counterpart
-// of what this function's runRound()/renderRound() do here.
+export function installExamplesUiStyles(doc: Document = document): void {
+    if (doc.getElementById(EXAMPLES_UI_STYLE_ID) !== null) return;
+    const style = doc.createElement("style");
+    style.id = EXAMPLES_UI_STYLE_ID;
+    style.textContent = EXAMPLES_UI_CSS;
+    doc.head.appendChild(style);
+}
+
 export const initializeUi = async (div: HTMLDivElement, customScenarios?: [string, string][]) => {
-    const style = document.createElement("style");
-    style.textContent = PLAYER_STYLE;
-    style.id = "ui-style";
-
-    if (!document.getElementById("ui-style")) {
-        document.head.appendChild(style);
-    }
-
-    const link = document.createElement("link");
-    link.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    link.rel = "stylesheet";
-    link.integrity = "sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC";
-    link.crossOrigin = "anonymous";
-    link.id = "bootstrap-link";
-
-    if (!document.getElementById("ui-link")) {
-        document.head.appendChild(link);
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js";
-    script.integrity = "sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM";
-    script.crossOrigin = "anonymous";
-    script.id = "bootstrap-script";
-
-    if (!document.getElementById("bootstrap-script")) {
-        document.head.appendChild(script);
-    }
-
-    div.className = "container";
-    div.style.maxWidth = "600px";
-
-    div.innerHTML = `
-            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center
-                        justify-content-sm-between gap-1 pt-4 pb-3 mb-2 border-bottom">
-                <h1 class="h4 mb-0">${document.title.replace(" with POKIE", "")}</h1>
-                <a href="index.html" class="text-decoration-none">&larr; All examples</a>
-            </div>
-
-            <div class="paragraph" id="roundError" style="display: none">
-                <p id="roundErrorMessage"></p>
-                <details>
-                    <summary>Technical details</summary>
-                    <pre id="roundErrorDetail"></pre>
-                </details>
-                <button id="roundRetryButton" type="button" class="btn btn-secondary btn-sm">Retry</button>
-                <button id="roundReconnectButton" type="button" class="btn btn-secondary btn-sm">Reconnect</button>
-            </div>
-
-            <div class="paragraph">
-                <div id="reelsContainer"></div>
-            </div>
-
-            <div class="paragraph">
-                <div style="display: flex; justify-content: center;">
-                    <div id="credits" style="flex: 1; text-align: center;">Credits</div>
-                    <div id="win" style="flex: 1; text-align: center;">Win</div>
-                    <div id="payoutMultiplier" style="flex: 1; text-align: center;">Win multiple</div>
-                </div>
-                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                    <div id="betInfo" class="player-bet-info"></div>
-                    <div id="modeInfo" class="player-mode-info"></div>
-                </div>
-                <dl id="fgCounters" class="d-flex justify-content-center gap-3" hidden></dl>
-            </div>
-
-            <div class="paragraph">
-                <div class="d-flex align-items-center gap-2">
-                    <button id="playButton" type="button" class="btn btn-primary btn-lg">Play</button>
-                    <button id="playWinButton" type="button" class="btn btn-primary btn-lg"">
-                        Win
-                    </button>
-                    <div class="flex-grow-1"></div>
-                    <div class="dropdown">
-                        <a
-                            class="btn btn-secondary dropdown-toggle"
-                            href="#"
-                            role="button"
-                            id="dropdownMenuLink"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            Simulations
-                        </a>
-                        <ul id="dropDownList" class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="paragraph" id="winningLines" hidden>
-                <h4>Winning lines</h4>
-                <div class="paragraph" id="winningLinesList"></div>
-            </div>
-
-            <div class="paragraph" id="customInfo"></div>
-
-            <div class="paragraph">
-                <div class="accordion" id="accordionMath">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingLinesDefinitions">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseLinesDefinitions" aria-expanded="true" aria-controls="collapseLinesDefinitions">
-                                Lines definitions
-                            </button>
-                        </h2>
-                        <div id="collapseLinesDefinitions" class="accordion-collapse collapse" aria-labelledby="headingLinesDefinitions"
-                             data-bs-parent="#accordionMath">
-                            <div id="linesDefinitionsList" class="accordion-body" >
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingPaytable">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapsePaytable" aria-expanded="true" aria-controls="collapsePaytable">
-                                Paytable
-                            </button>
-                        </h2>
-                        <div id="collapsePaytable" class="accordion-collapse collapse" aria-labelledby="headingPaytable"
-                             data-bs-parent="#accordionMath">
-                            <div class="accordion-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                        <tr id="paytableHead">
-                                            <th scope="col">Symbol</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody id="paytableBody">
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <div>
-            <div>
-
-        `;
-
-    const elements = queryElements(div);
+    installExamplesUiStyles(div.ownerDocument);
+    div.className = "pokie-examples-ui";
+    div.innerHTML =
+        '<header class="pokie-examples-ui-header">' +
+        '<h1>' + document.title.replace(" with POKIE", "") + '</h1>' +
+        '<a href="index.html">&larr; All examples</a></header>' +
+        '<section data-player-root></section>' +
+        '<div id="customInfo"></div>' +
+        '<section id="roundError" hidden><p id="roundErrorMessage"></p>' +
+        '<details><summary>Technical details</summary><pre id="roundErrorDetail"></pre></details>' +
+        '<button id="roundRetryButton" type="button">Retry</button>' +
+        '<button id="roundReconnectButton" type="button">Reconnect</button></section>' +
+        '<div class="pokie-examples-actions"><button id="playButton" type="button" class="pokie-examples-ui-button pokie-examples-play">Play</button><button id="playWinButton" type="button" class="pokie-examples-ui-button pokie-examples-play">Win</button>' +
+        '<div class="pokie-examples-scenarios"><button id="scenariosButton" class="pokie-examples-ui-button pokie-examples-scenarios-toggle" type="button" aria-expanded="false" aria-controls="dropDownList">Scenarios</button><ul id="dropDownList" class="pokie-examples-scenarios-menu" hidden></ul></div></div>';
 
     const initialData = (await getInitialData()) as VideoSlotWithFreeGamesInitialNetworkData;
-    const staticView = deriveStaticVideoSlotView(initialData);
-
-    let selectedBet: number | undefined = typeof initialData.bet === "number" ? initialData.bet : staticView.availableBets[0];
-    let selectedMode: string | undefined = deriveBetModeId((initialData as VideoSlotRoundResponse).betModeId) ?? staticView.availableBetModeIds[0];
-
-    const rerender = (data: VideoSlotWithFreeGamesRoundNetworkData): void => {
-        renderRound(
-            elements,
-            data,
-            staticView,
-            selectedBet,
-            (bet) => {
-                selectedBet = bet;
-                runRound(() => getRoundData(selectedBet, selectedMode));
+    const playerRoot = div.querySelector<HTMLElement>("[data-player-root]");
+    if (playerRoot === null) {
+        throw new Error("Missing canonical player mount point.");
+    }
+    const elements = createPlayerRoundElements(playerRoot);
+    const render = (round: VideoSlotRoundResponse) => {
+        // Round payloads intentionally contain only changing session state.  The canonical player
+        // also needs the session's stable presentation data (paytable and paylines), exactly as
+        // Studio carries it alongside its RoundArtifact presentation.  Keep that initial contract
+        // when applying each round instead of letting an otherwise equivalent settled round lose
+        // its player-owned table and line controls.
+        const playerRound = {...initialData, ...round};
+        if (!isVideoSlotRoundResponse(playerRound)) {
+            throw new Error("The example did not provide a video-slot round.");
+        }
+        const totalWin = deriveTotalWin(playerRound);
+        const bet = typeof playerRound.bet === "number" ? playerRound.bet : undefined;
+        renderPlayerRound(elements, {
+            credits: typeof playerRound.credits === "number" ? playerRound.credits : undefined,
+            totalWin,
+            payoutMultiplier: totalWin !== undefined && bet !== undefined && bet !== 0 ? totalWin / bet : undefined,
+            formatTotalWin: (value) => value.toFixed(2),
+            formatPayoutMultiplier: (value) => value.toFixed(2),
+            reelsSymbols: playerRound.reelsSymbols ?? [],
+            highlights: deriveWinHighlights(playerRound),
+            featureCounters: deriveFeatureCounters(playerRound),
+            lines: deriveLineDefinitions(playerRound.linesDefinitions),
+            paytable: derivePaytableView(playerRound.paytable),
+            availableBets: deriveAvailableBets(playerRound.availableBets),
+            currentBet: bet,
+            onSelectBet: (nextBet) => render(selectBet(nextBet)),
+            availableModeIds: deriveAvailableBetModeIds(playerRound.availableBetModeIds),
+            currentModeId: deriveBetModeId(playerRound.betModeId),
+            onSelectMode: (nextModeId) => {
+                const selected = selectBetMode(nextModeId);
+                if (selected !== undefined) {
+                    render(selected);
+                }
             },
-            selectedMode,
-            (modeId) => {
-                selectedMode = modeId;
-                runRound(() => getRoundData(selectedBet, selectedMode));
-            },
-        );
+        });
     };
+    setRoundRenderer((round: VideoSlotWithFreeGamesRoundNetworkData) => render(round));
+    render(initialData);
 
-    // Runs one round-producing action (a spin, a "play until any win" simulation, a custom scenario,
-    // ...), rendering its result on success or a retryable error -- via the exact same
-    // renderConnectionError/clearConnectionError pair cli/client/main.ts's own attemptSpin() shows a
-    // failed spin with -- on failure. "Retry" re-runs this same action; "Reconnect" discards it and
-    // re-renders the game's last-known-good initial data instead, the same fallback cli/client's own
-    // reconnect() falls back to a fresh session for.
-    const runRound = (action: () => Promise<VideoSlotWithFreeGamesRoundNetworkData>): void => {
-        elements.playButton.disabled = true;
-        elements.playWinButton.disabled = true;
-        action()
-            .then((data) => {
-                clearConnectionError(elements.roundError);
-                rerender(data);
-            })
-            .catch((error: unknown) => {
-                const {readable, detail} = describeError(error);
-                renderConnectionError(
-                    {
-                        container: elements.roundError,
-                        message: elements.roundErrorMessage,
-                        detail: elements.roundErrorDetail,
-                        retryButton: elements.roundRetryButton,
-                    },
-                    `Round failed: ${readable}`,
-                    detail,
-                    () => runRound(action),
-                );
-                elements.roundReconnectButton.onclick = () => {
-                    clearConnectionError(elements.roundError);
-                    rerender(initialData);
-                };
-            })
-            .finally(() => {
-                elements.playButton.disabled = false;
-                elements.playWinButton.disabled = false;
-            });
+    const playButton = div.querySelector<HTMLButtonElement>("#playButton")!;
+    const playWinButton = div.querySelector<HTMLButtonElement>("#playWinButton")!;
+    const scenariosButton = div.querySelector<HTMLButtonElement>("#scenariosButton")!;
+    const list = div.querySelector<HTMLUListElement>("#dropDownList")!;
+    const errorContainer = div.querySelector<HTMLElement>("#roundError")!;
+    const errorMessage = div.querySelector<HTMLElement>("#roundErrorMessage")!;
+    const errorDetail = div.querySelector<HTMLElement>("#roundErrorDetail")!;
+    const retryButton = div.querySelector<HTMLButtonElement>("#roundRetryButton")!;
+    const reconnectButton = div.querySelector<HTMLButtonElement>("#roundReconnectButton")!;
+    const runRound = async (action: () => Promise<void>): Promise<void> => {
+        playButton.disabled = true;
+        playWinButton.disabled = true;
+        try {
+            await action();
+            clearConnectionError(errorContainer);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            const detail = error instanceof Error ? error.stack ?? message : message;
+            renderConnectionError(
+                {container: errorContainer, message: errorMessage, detail: errorDetail, retryButton},
+                `Round failed: ${message}`,
+                detail,
+                () => void runRound(action),
+            );
+            reconnectButton.onclick = () => {
+                clearConnectionError(errorContainer);
+                render(initialData);
+            };
+        } finally {
+            playButton.disabled = false;
+            playWinButton.disabled = false;
+        }
     };
-
-    rerender(initialData);
-
-    elements.playButton.onclick = () => runRound(() => getRoundData(selectedBet, selectedMode));
-    elements.playWinButton.onclick = () => runRound(() => getAnyWinData() as Promise<VideoSlotWithFreeGamesRoundNetworkData>);
-
-    const pt = initialData.paytable["10"] ?? Object.values(initialData.paytable)[0];
-    Object.keys(pt).forEach((itemId) => {
-        const entry = pt[itemId];
-        Object.keys(entry).forEach((times) => {
-            const intTimes = parseInt(times, 10);
-            const a = document.createElement("a");
-            a.className = "dropdown-item";
-            a.innerText = 'Symbol "' + itemId + '" x ' + times;
-            a.onclick = () => runRound(() => getSymbolWinData(itemId, intTimes) as Promise<VideoSlotWithFreeGamesRoundNetworkData>);
-            const li = document.createElement("li");
-            li.appendChild(a);
-            elements.dropDownList.appendChild(li);
+    playButton.onclick = () => void runRound(play);
+    playWinButton.onclick = () => void runRound(getAnyWin);
+    scenariosButton.onclick = () => {
+        const expanded = scenariosButton.getAttribute("aria-expanded") === "true";
+        scenariosButton.setAttribute("aria-expanded", String(!expanded));
+        list.hidden = expanded;
+    };
+    const appendScenario = (label: string, onSelect: () => void) => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "pokie-examples-scenarios-item";
+        button.textContent = label;
+        button.onclick = () => {
+            list.hidden = true;
+            scenariosButton.setAttribute("aria-expanded", "false");
+            onSelect();
+        };
+        item.appendChild(button);
+        list.appendChild(item);
+    };
+    const paytable = initialData.paytable["10"] ?? Object.values(initialData.paytable)[0] ?? {};
+    Object.entries(paytable).forEach(([symbolId, counts]) => {
+        Object.keys(counts).forEach((times) => {
+            appendScenario('Symbol "' + symbolId + '" x ' + times, () => void runRound(() => getSymbolWin(symbolId, Number(times))));
         });
     });
-
-    customScenarios?.forEach((scenario) => {
-        const a = document.createElement("a");
-        a.className = "dropdown-item";
-        a.innerText = scenario[1];
-        a.onclick = () => runRound(() => getCustomScenarioData(scenario[0]) as Promise<VideoSlotWithFreeGamesRoundNetworkData>);
-        const li = document.createElement("li");
-        li.appendChild(a);
-        elements.dropDownList.appendChild(li);
+    customScenarios?.forEach(([id, label]) => {
+        appendScenario(label, () => void runRound(() => getCustomScenario(id)));
     });
 };

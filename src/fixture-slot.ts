@@ -1,7 +1,6 @@
 import {initializeData} from "./data.ts";
-import {createFixtureSession} from "./games/fixture-slot/index.ts";
+import {createFixtureSession, fixtureScenarios, fixtureSessionSerializer} from "./games/fixture-slot/index.ts";
 import {initializeUi} from "./ui/ui.ts";
 
-const {session, serializer} = createFixtureSession();
-initializeData(session, serializer);
-initializeUi(document.getElementById("ui") as HTMLDivElement);
+initializeData(createFixtureSession(), fixtureSessionSerializer, fixtureScenarios);
+void initializeUi(document.getElementById("ui") as HTMLDivElement, fixtureScenarios.map(([id, label]) => [id, label]));

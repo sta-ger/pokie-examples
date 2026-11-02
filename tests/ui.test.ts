@@ -3,7 +3,7 @@ import * as path from "node:path";
 import * as player from "pokie/client/player";
 import {initializeUi} from "../src/ui/ui.ts";
 import {initializeData} from "../src/data.ts";
-import {createFixtureSession, FIXTURE_SEED} from "../src/games/fixture-slot/index.ts";
+import {createFixtureSession, FIXTURE_SEED} from "./fixtures/p5-polish-19/session.ts";
 
 // Proves this example project actually renders through pokie's own canonical
 // "pokie/client/player" package export (see cli/client/player/renderPlayer.ts for the functions
@@ -183,10 +183,8 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
             credits: 980,
             totalWin: player.deriveTotalWin(response),
             payoutMultiplier: player.deriveTotalWin(response)! / 20,
-            creditsLabel: "Credits: ",
-            totalWinLabel: "Win: ",
-            payoutMultiplierLabel: "Win multiple: ",
-            payoutMultiplierSuffix: "x",
+            formatTotalWin: (value) => value.toFixed(2),
+            formatPayoutMultiplier: (value) => value.toFixed(2),
             reelsSymbols: response.reelsSymbols,
             highlights: player.deriveWinHighlights(response),
             featureCounters: player.deriveFeatureCounters(response),
@@ -198,18 +196,18 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
             currentModeId: player.deriveBetModeId(response.betModeId),
         });
 
-        expect(div.querySelector("#reelsContainer")?.innerHTML).toBe(canonical.gridContainer.innerHTML);
-        expect(div.querySelector("#credits")?.textContent).toBe(canonical.credits.textContent);
-        expect(div.querySelector("#win")?.textContent).toBe(canonical.totalWin.textContent);
-        expect(div.querySelector("#payoutMultiplier")?.textContent).toBe(canonical.payoutMultiplier.textContent);
-        expect(div.querySelector("#winningLines")?.hidden).toBe(canonical.winsSection.hidden);
-        expect(div.querySelector("#winningLinesList")?.innerHTML).toBe(canonical.winsList.innerHTML);
-        expect(div.querySelector("#linesDefinitionsList")?.innerHTML).toBe(canonical.linesList.innerHTML);
-        expect(div.querySelector("#fgCounters")?.innerHTML).toBe(canonical.features.innerHTML);
-        expect(div.querySelector("#betInfo")?.innerHTML).toBe(canonical.betInfo.innerHTML);
-        expect(div.querySelector("#modeInfo")?.innerHTML).toBe(canonical.modeInfo.innerHTML);
-        expect(div.querySelector("#paytableHead")?.innerHTML).toBe(canonical.paytableHead.innerHTML);
-        expect(div.querySelector("#paytableBody")?.innerHTML).toBe(canonical.paytableBody.innerHTML);
+        expect(div.querySelector(".pokie-player-grid-scroll > div")?.innerHTML).toBe(canonical.gridContainer.innerHTML);
+        expect(div.querySelector(".player-round-total:nth-child(1) dd")?.textContent).toBe(canonical.credits.textContent);
+        expect(div.querySelector(".player-round-total:nth-child(2) dd")?.textContent).toBe(canonical.totalWin.textContent);
+        expect(div.querySelector(".player-round-total:nth-child(3) dd")?.textContent).toBe(canonical.payoutMultiplier.textContent);
+        expect(div.querySelector(".player-wins")?.hidden).toBe(canonical.winsSection.hidden);
+        expect(div.querySelector(".player-wins-list")?.innerHTML).toBe(canonical.winsList.innerHTML);
+        expect(div.querySelector(".player-lines-list")?.innerHTML).toBe(canonical.linesList.innerHTML);
+        expect(div.querySelector(".player-features")?.innerHTML).toBe(canonical.features.innerHTML);
+        expect(div.querySelector(".player-bet-info")?.innerHTML).toBe(canonical.betInfo.innerHTML);
+        expect(div.querySelector(".player-mode-info")?.innerHTML).toBe(canonical.modeInfo.innerHTML);
+        expect(div.querySelector(".player-paytable thead tr")?.innerHTML).toBe(canonical.paytableHead.innerHTML);
+        expect(div.querySelector(".player-paytable tbody")?.innerHTML).toBe(canonical.paytableBody.innerHTML);
     });
 
     it("renders a winning payline via the shared player's win-highlight list", async () => {
@@ -217,8 +215,8 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         (div.querySelector("#playButton") as HTMLButtonElement).click();
         await flush();
 
-        expect((div.querySelector("#winningLines") as HTMLElement).hidden).toBe(false);
-        const buttons = Array.from(div.querySelectorAll("#winningLinesList .player-highlight-button")) as HTMLButtonElement[];
+        expect((div.querySelector(".player-wins") as HTMLElement).hidden).toBe(false);
+        const buttons = Array.from(div.querySelectorAll(".player-wins-list .player-highlight-button")) as HTMLButtonElement[];
         expect(buttons.map((b) => b.textContent)).toEqual(["Line: 0, win: 40"]);
     });
 
@@ -227,41 +225,41 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         (div.querySelector("#playButton") as HTMLButtonElement).click();
         await flush();
 
-        const buttons = Array.from(div.querySelectorAll("#winningLinesList .player-highlight-button")) as HTMLButtonElement[];
+        const buttons = Array.from(div.querySelectorAll(".player-wins-list .player-highlight-button")) as HTMLButtonElement[];
         expect(buttons.map((b) => b.textContent)).toEqual(["Line: 0, win: 40", "Scatter: Scatter1, win: 60"]);
-        expect(div.querySelector("#win")?.textContent).toBe("Win: 100");
-        expect(div.querySelector("#payoutMultiplier")?.textContent).toBe("Win multiple: 5x");
+        expect(div.querySelector(".player-round-total:nth-child(2) dd")?.textContent).toBe("100.00");
+        expect(div.querySelector(".player-round-total:nth-child(3) dd")?.textContent).toBe("5.00");
     });
 
     it("lets a player pick one of the session's own available bets, and re-spins staked at it", async () => {
         const {div, session} = await renderExample(noWinRound, [noWinRound]);
-        const options = Array.from(div.querySelectorAll("#betInfo .player-bet-option")) as HTMLButtonElement[];
+        const options = Array.from(div.querySelectorAll(".player-bet-info .player-bet-option")) as HTMLButtonElement[];
         expect(options.map((b) => b.textContent)).toEqual(["10", "20", "30"]);
 
         options.find((b) => b.textContent === "10")!.click();
         await flush();
 
         expect(session.bet).toBe(10);
-        expect(div.querySelector("#betInfo .player-bet-current")?.textContent).toBe("Bet: 10");
+        expect(div.querySelector(".player-bet-info .player-bet-current")?.textContent).toBe("Bet: 10");
     });
 
     it("lets a player pick one of the session's own available bet modes, and re-spins with it", async () => {
         const {div, session} = await renderExample(noWinRound, [noWinRound]);
-        const options = Array.from(div.querySelectorAll("#modeInfo .player-mode-option")) as HTMLButtonElement[];
+        const options = Array.from(div.querySelectorAll(".player-mode-info .player-mode-option")) as HTMLButtonElement[];
         expect(options.map((b) => b.textContent)).toEqual(["base", "ante"]);
 
         options.find((b) => b.textContent === "ante")!.click();
         await flush();
 
         expect(session.betModeId).toBe("ante");
-        expect(div.querySelector("#modeInfo .player-mode-current")?.textContent).toBe("Mode: ante");
+        expect(div.querySelector(".player-mode-info .player-mode-current")?.textContent).toBe("Mode: ante");
     });
 
     it("keeps the reels grid's own narrow-viewport styling", async () => {
         const {div} = await renderExample(noWinRound, []);
-        const style = div.ownerDocument.getElementById("ui-style") as HTMLStyleElement;
+        const style = div.ownerDocument.getElementById(player.PLAYER_PRESENTATION_STYLE_ID) as HTMLStyleElement;
         expect(style.textContent).toMatch(/@media \(max-width: 480px\)/);
-        expect(style.textContent).toMatch(/\.player-cell\s*{\s*font-size: 12px;/);
+        expect(style.textContent).toMatch(/\.player-cell\s*{\s*font-size: \.75rem;/);
     });
 
     it("shows a retryable error when a round fails, and retrying re-spins successfully", async () => {
@@ -279,7 +277,7 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         await flush();
 
         expect(errorSection.hidden).toBe(true);
-        expect(div.querySelector("#win")?.textContent).toBe("Win: 40");
+        expect(div.querySelector(".player-round-total:nth-child(2) dd")?.textContent).toBe("40.00");
     });
 
     it("falls back to the last-known-good initial round when reconnecting after a failure", async () => {
@@ -292,7 +290,7 @@ describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
         await flush();
 
         expect((div.querySelector("#roundError") as HTMLElement).hidden).toBe(true);
-        expect(div.querySelector("#win")?.textContent).toBe("Win: 0");
+        expect(div.querySelector(".player-round-total:nth-child(2) dd")?.textContent).toBe("0.00");
     });
 });
 
@@ -372,18 +370,18 @@ describe("P5-POLISH-19: examples surface renders the identical fixture round cap
         // Payline/winning positions: the real line win on line "1" (top row), symbol A, amount 5 --
         // identical lineId/winAmount to the CLI replay/Studio Play/Studio Replay captures cross-checked
         // above.
-        const buttons = Array.from(div.querySelectorAll("#winningLinesList .player-highlight-button")) as HTMLButtonElement[];
+        const buttons = Array.from(div.querySelectorAll(".player-wins-list .player-highlight-button")) as HTMLButtonElement[];
         expect(buttons.map((b) => b.textContent)).toEqual(["Line: 1, win: 5"]);
         expect((div.querySelector('[data-cell="0:0"]') as HTMLElement).style.backgroundColor).not.toBe("");
         expect((div.querySelector('[data-cell="0:1"]') as HTMLElement).style.backgroundColor).not.toBe("");
         expect((div.querySelector('[data-cell="0:2"]') as HTMLElement).style.backgroundColor).not.toBe("");
-        expect(div.querySelector("#win")?.textContent).toBe("Win: 5");
+        expect(div.querySelector(".player-round-total:nth-child(2) dd")?.textContent).toBe("5.00");
 
         // Paytable: the real fixture-slot paytable (A pays 5 for 3-of-a-kind at bet 1), read straight
         // from the captured session response, not retyped.
-        expect(div.querySelector("#paytableBody")?.textContent).toContain("A");
-        expect(div.querySelector("#paytableBody")?.textContent).toContain("5");
-        expect(div.querySelector("#credits")?.textContent).toBe("Credits: 1004");
-        expect(div.querySelector("#payoutMultiplier")?.textContent).toBe("Win multiple: 5x");
+        expect(div.querySelector(".player-paytable tbody")?.textContent).toContain("A");
+        expect(div.querySelector(".player-paytable tbody")?.textContent).toContain("5");
+        expect(div.querySelector(".player-round-total:nth-child(1) dd")?.textContent).toBe("1004");
+        expect(div.querySelector(".player-round-total:nth-child(3) dd")?.textContent).toBe("5.00");
     });
 });
