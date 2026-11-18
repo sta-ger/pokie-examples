@@ -21,7 +21,7 @@ import {
     VideoSlotSession,
     VideoSlotSessionSerializer,
     VideoSlotWinCalculator,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 import {VerifiableSpinConfig} from "./VerifiableSpinConfig.ts";
 
 class CountingSymbolsCombinationsGenerator implements SymbolsCombinationsGenerating<string> {

@@ -2,7 +2,7 @@ import {
     createPc12FreeGamesFixtureSession,
     PC_12_FEATURED_ROUND_SEED,
     VideoSlotWithFreeGamesSessionSerializer,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 
 const game = {
     getManifest() {

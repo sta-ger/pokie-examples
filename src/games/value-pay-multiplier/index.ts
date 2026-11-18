@@ -21,7 +21,7 @@ import {
     VideoSlotSession,
     VideoSlotSessionSerializer,
     VideoSlotWinCalculator,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 import {ValuePayMultiplierConfig} from "./ValuePayMultiplierConfig.ts";
 
 const config = new ValuePayMultiplierConfig();

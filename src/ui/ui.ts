@@ -13,8 +13,8 @@ import {
     renderConnectionError,
     isVideoSlotRoundResponse,
     type VideoSlotRoundResponse,
-} from "pokie/client/player";
-import {VideoSlotWithFreeGamesInitialNetworkData, type VideoSlotWithFreeGamesRoundNetworkData} from "pokie/browser";
+} from "@fromstan/pokie/client/player";
+import {VideoSlotWithFreeGamesInitialNetworkData, type VideoSlotWithFreeGamesRoundNetworkData} from "@fromstan/pokie/browser";
 import {getInitialData, selectBet, selectBetMode} from "../data.ts";
 import {getAnyWin, getCustomScenario, getSymbolWin, play, setRoundRenderer} from "./utils.ts";
 
@@ -23,7 +23,7 @@ export const EXAMPLES_UI_STYLE_ID = "pokie-examples-ui-presentation";
 // The examples used to load Bootstrap dynamically from this shared entrypoint. Keep the outer
 // example controls self-contained instead: a package consumer should not need a CDN script merely
 // to make Play, Win and Scenarios usable. Player-specific markup and styles remain exclusively in
-// pokie/client/player.
+// @fromstan/pokie/client/player.
 const EXAMPLES_UI_CSS = `
 .pokie-examples-ui { box-sizing: border-box; width: min(100% - 2rem, 600px); margin: 0 auto; color: #212529; font-family: system-ui, sans-serif; }
 .pokie-examples-ui *, .pokie-examples-ui *::before, .pokie-examples-ui *::after { box-sizing: border-box; }

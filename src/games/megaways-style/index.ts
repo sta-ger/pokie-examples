@@ -13,7 +13,7 @@ import {
     VideoSlotSessionSerializer,
     VideoSlotWinCalculator,
     WaysWinCalculator,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 import {MegawaysStyleConfig} from "./MegawaysStyleConfig.ts";
 
 const config = new MegawaysStyleConfig();

@@ -1,4 +1,4 @@
-import {createPc12FreeGamesFixtureSession, VideoSlotWithFreeGamesSessionSerializer} from "pokie/browser";
+import {createPc12FreeGamesFixtureSession, VideoSlotWithFreeGamesSessionSerializer} from "@fromstan/pokie/browser";
 import {initializeData} from "../src/data.ts";
 import {createFixtureSession, FIXTURE_SEED, fixtureScenarios, fixtureSessionSerializer} from "../src/games/fixture-slot/index.ts";
 import {initializeUi} from "../src/ui/ui.ts";

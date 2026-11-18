@@ -7,7 +7,7 @@ import {
     SymbolsSequence,
     SymbolsSequenceDescribing,
     VideoSlotWithFreeGamesConfig,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 
 export class SwfgConfig extends VideoSlotWithFreeGamesConfig {
     private readonly normalSequences: SymbolsSequence[];

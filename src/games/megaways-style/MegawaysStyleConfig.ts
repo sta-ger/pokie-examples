@@ -1,4 +1,4 @@
-import {CustomLinesDefinitions, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie/browser";
+import {CustomLinesDefinitions, Paytable, SymbolsSequence, VideoSlotConfig} from "@fromstan/pokie/browser";
 
 export class MegawaysStyleConfig extends VideoSlotConfig {
     public static readonly REELS_NUMBER = 6;

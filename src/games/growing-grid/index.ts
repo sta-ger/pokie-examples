@@ -17,7 +17,7 @@ import {
     VideoSlotSessionSerializer,
     VideoSlotWinCalculator,
     VideoSlotWithResizableGridSession,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 import {GrowingGridConfig} from "./GrowingGridConfig.ts";
 
 const config = new GrowingGridConfig();

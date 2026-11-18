@@ -1,4 +1,4 @@
-import {LinesDefinitionsFor5x3, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie/browser";
+import {LinesDefinitionsFor5x3, Paytable, SymbolsSequence, VideoSlotConfig} from "@fromstan/pokie/browser";
 
 export class VerifiableSpinConfig extends VideoSlotConfig {
     public static readonly REELS_NUMBER = 5;

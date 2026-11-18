@@ -1,12 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import * as player from "pokie/client/player";
+import * as player from "@fromstan/pokie/client/player";
 import {initializeUi} from "../src/ui/ui.ts";
 import {initializeData} from "../src/data.ts";
 import {createFixtureSession, FIXTURE_SEED} from "./fixtures/p5-polish-19/session.ts";
 
 // Proves this example project actually renders through pokie's own canonical
-// "pokie/client/player" package export (see cli/client/player/renderPlayer.ts for the functions
+// "@fromstan/pokie/client/player" package export (see cli/client/player/renderPlayer.ts for the functions
 // under test) -- not a fork of it -- by driving the real, migrated ui.ts/data.ts against a fully controlled fake
 // session+serializer, the same way tests/server/spin/SpinCommandHandler.test.ts's own fakes control
 // pokie's server-side session boundary.
@@ -140,7 +140,7 @@ async function renderExample(initial: RoundFixture, queue: RoundFixture[]) {
     return {div, session};
 }
 
-describe("pokie-examples' ui.ts adoption of pokie/client/player", () => {
+describe("pokie-examples' ui.ts adoption of @fromstan/pokie/client/player", () => {
     afterEach(() => {
         document.body.innerHTML = "";
     });

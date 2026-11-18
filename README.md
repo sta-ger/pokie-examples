@@ -1,9 +1,29 @@
 # POKIE examples
 
-Video slot game mechanics implemented with [POKIE](https://github.com/sta-ger/pokie), a server-side
-video slot game logic framework for JavaScript and TypeScript.
+Video slot game mechanics implemented with [POKIE](https://github.com/sta-ger/pokie), an
+ISC-licensed JavaScript/TypeScript framework for slot math, simulation and portable game artifacts.
 
 **Live demo:** https://sta-ger.github.io/pokie-examples/
+
+## POKIE 2.0 development branch
+
+`develop` tracks POKIE 2.0. It imports the scoped package name
+`@fromstan/pokie` and the public `@fromstan/pokie/client/player` presentation entrypoint.
+
+Until `@fromstan/pokie@2.0.0` is published, this branch resolves POKIE from the sibling checkout at
+`../pokie`:
+
+```json
+"dependencies": {
+  "@fromstan/pokie": "file:../pokie"
+}
+```
+
+When the package is published, change that dependency to `^2.0.0` and regenerate
+`package-lock.json`.
+
+The live GitHub Pages site is currently built from `main` (v1.2). The v2 branch and the
+`fixture-slot` page are not deployed yet.
 
 ## Examples
 
@@ -36,26 +56,35 @@ video slot game logic framework for JavaScript and TypeScript.
   once, paid by whichever wins the most.
 - **Fixture Slot — deterministic Player round** [[Demo](https://sta-ger.github.io/pokie-examples/fixture-slot.html)]
   [[Code](src/games/fixture-slot)] — a seeded free-games fixture whose Play control renders through
-  POKIE's public `client/player` surface. It is the shared parity fixture for generated-package,
-  Studio Play, and Replay round presentation.
+  POKIE's public `@fromstan/pokie/client/player` surface. It is the shared parity fixture for
+  generated-package, Studio Play, and Replay round presentation.
 
 ## Running locally
 
-```
-npm install
+POKIE 2.0 is not published yet, so keep the POKIE checkout next to this repository and build it
+first:
+
+```bash
+git clone https://github.com/sta-ger/pokie.git ../pokie
+cd ../pokie
+npm ci
+npm run build
+
+cd ../pokie-examples
+npm ci
 npm start
 ```
 
-Opens a Vite dev server; `index.html` links to every example. `npm run dev` remains an equivalent
-shortcut. Pass `--host` (or set it permanently in `vite.config.js`, already done here) to reach it
-from another device on the network.
+`npm start` opens a Vite dev server; `index.html` links to every example. `npm run dev` is an
+equivalent shortcut. Pass `--host` (or set it permanently in `vite.config.js`, already done here) to
+reach it from another device on the network.
 
 ## POKIE Studio and the dev client
 
 The repository root is also a runnable POKIE game package. Its entry is the deterministic Fixture
 Slot, so the normal POKIE tools can load it without a separate build step:
 
-```
+```bash
 npx pokie dev .
 ```
 
@@ -65,7 +94,7 @@ use its Play, Simulation, Replay, Build, Outcome, and Stake tabs.
 
 ## Building
 
-```
+```bash
 npm run build
 ```
 
@@ -78,5 +107,6 @@ GitHub Pages via `.github/workflows/deploy-pages.yml`. `npm run pages` (publishi
 Each example lives in `src/games/<name>/` (its own `VideoSlotConfig`/session/win-calculator setup)
 plus a matching `<name>.html` entry point and `src/<name>.ts` bootstrap. `src/ui/` (`ui.ts`,
 `utils.ts`) and `src/data.ts` are shared across every example — the generic reels/counters/winning-
-lines rendering and the Play/Simulation plumbing — so an individual game only needs to describe its
-own config and win logic, not reimplement the UI.
+lines rendering and the Play/Simulation plumbing. `src/ui/ui.ts` now consumes the same
+`@fromstan/pokie/client/player` renderer that Studio and the standalone dev client use, so an
+individual game only needs to describe its own config and win logic, not reimplement the UI.

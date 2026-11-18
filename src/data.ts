@@ -12,7 +12,7 @@ import {
     VideoSlotWithFreeGamesSession,
     VideoSlotWithFreeGamesSessionSerializer,
     VideoSlotWithResizableGridSession,
-} from "pokie/browser";
+} from "@fromstan/pokie/browser";
 
 export type AnyVideoSlotSession = VideoSlotSession | VideoSlotWithFreeGamesSession | VideoSlotWithResizableGridSession;
 

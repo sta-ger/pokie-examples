@@ -1,4 +1,4 @@
-import {LinesDefinitionsFor5x3, LeftToRightLinesPatterns, Paytable, SymbolsSequence, VideoSlotConfig} from "pokie/browser";
+import {LinesDefinitionsFor5x3, LeftToRightLinesPatterns, Paytable, SymbolsSequence, VideoSlotConfig} from "@fromstan/pokie/browser";
 
 export class ValuePayMultiplierConfig extends VideoSlotConfig {
     public static readonly REELS_NUMBER = 5;

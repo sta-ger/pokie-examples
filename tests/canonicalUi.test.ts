@@ -7,7 +7,7 @@ const getAnyWin = jest.fn();
 const getCustomScenario = jest.fn();
 const getSymbolWin = jest.fn();
 
-jest.mock("pokie/client/player", () => ({
+jest.mock("@fromstan/pokie/client/player", () => ({
     createPlayerRoundElements: jest.fn((root: HTMLElement) => {
         root.dataset.pokiePlayer = "canonical-v1";
         return {gridContainer: document.createElement("div")};
@@ -46,7 +46,7 @@ describe("canonical POKIE player adoption", () => {
     it("uses only the installed public player export and its complete mount contract", () => {
         const source = readFileSync(resolve(__dirname, "../src/ui/ui.ts"), "utf8");
 
-        expect(source).toContain('from "pokie/client/player"');
+        expect(source).toContain('from "@fromstan/pokie/client/player"');
         expect(source).toContain("createPlayerRoundElements(playerRoot)");
         expect(source).toContain("renderPlayerRound(elements,");
         expect(source).toContain("formatTotalWin: (value) => value.toFixed(2)");
