@@ -1,10 +1,10 @@
-import {createPc12FreeGamesFixtureSession, VideoSlotWithFreeGamesSessionSerializer} from "@fromstan/pokie/browser";
+import {createStudioFixtureGameSession, VideoSlotWithFreeGamesSessionSerializer} from "@fromstan/pokie/browser";
 import {initializeData} from "../src/data.ts";
 import {createFixtureSession, FIXTURE_SEED, fixtureScenarios, fixtureSessionSerializer} from "../src/games/fixture-slot/index.ts";
 import {initializeUi} from "../src/ui/ui.ts";
 
 it("reaches the shared featured round through the public Free games scenario", async () => {
-    const reference = createPc12FreeGamesFixtureSession(FIXTURE_SEED);
+    const reference = createStudioFixtureGameSession(FIXTURE_SEED);
     do {
         reference.play();
     } while (reference.getWonFreeGamesNumber() === 0);

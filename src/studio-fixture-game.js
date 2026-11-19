@@ -1,6 +1,6 @@
 import {
-    createPc12FreeGamesFixtureSession,
-    PC_12_FEATURED_ROUND_SEED,
+    createStudioFixtureGameSession,
+    STUDIO_FIXTURE_SEED,
     VideoSlotWithFreeGamesSessionSerializer,
 } from "@fromstan/pokie/browser";
 
@@ -14,7 +14,7 @@ const game = {
         };
     },
     createSession(context = {}) {
-        return createPc12FreeGamesFixtureSession(context.seed ?? PC_12_FEATURED_ROUND_SEED);
+        return createStudioFixtureGameSession(context.seed ?? STUDIO_FIXTURE_SEED);
     },
     getSessionSerializer() {
         return new VideoSlotWithFreeGamesSessionSerializer();

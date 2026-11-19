@@ -1,6 +1,6 @@
 import {
-    createPc12FreeGamesFixtureSession,
-    PC_12_FEATURED_ROUND_SEED,
+    createStudioFixtureGameSession,
+    STUDIO_FIXTURE_SEED,
     VideoSlotWithFreeGamesSession,
     VideoSlotWithFreeGamesSessionSerializer,
 } from "@fromstan/pokie/browser";
@@ -8,12 +8,12 @@ import {
     customScenarios,
 } from "../slot-with-free-games/index.ts";
 
-// Studio's PC-12 package fixture imports this exact public factory too.  Keep the consumer's
+// Studio's package fixture imports this exact public factory too.  Keep the consumer's
 // seed visible here so the browser runner can attest one same-game, same-round contract.
-export const FIXTURE_SEED = PC_12_FEATURED_ROUND_SEED;
+export const FIXTURE_SEED = STUDIO_FIXTURE_SEED;
 
 export function createFixtureSession(): VideoSlotWithFreeGamesSession {
-    return createPc12FreeGamesFixtureSession(FIXTURE_SEED);
+    return createStudioFixtureGameSession(FIXTURE_SEED);
 }
 
 export const fixtureSessionSerializer = new VideoSlotWithFreeGamesSessionSerializer();
