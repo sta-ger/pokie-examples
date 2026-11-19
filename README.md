@@ -1,7 +1,7 @@
 # POKIE examples
 
 Video slot game mechanics implemented with [POKIE](https://github.com/sta-ger/pokie), an
-ISC-licensed JavaScript/TypeScript framework for slot math, simulation and portable game artifacts.
+ISC-licensed JavaScript/TypeScript framework for slot math, simulation and ready-to-run game packages.
 
 **Live demo:** https://sta-ger.github.io/pokie-examples/
 

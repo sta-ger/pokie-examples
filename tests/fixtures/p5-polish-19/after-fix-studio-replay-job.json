@@ -44,7 +44,7 @@
         "artifact": {
             "betMode": "base",
             "payoutMultiplier": 5,
-            "provenance": {
+            "origin": {
                 "game": {
                     "id": "fixture-slot",
                     "name": "Fixture Slot",

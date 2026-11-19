@@ -74,13 +74,13 @@ export const initializeUi = async (div: HTMLDivElement, customScenarios?: [strin
     const initialData = (await getInitialData()) as VideoSlotWithFreeGamesInitialNetworkData;
     const playerRoot = div.querySelector<HTMLElement>("[data-player-root]");
     if (playerRoot === null) {
-        throw new Error("Missing canonical player mount point.");
+        throw new Error("Missing player mount point.");
     }
     const elements = createPlayerRoundElements(playerRoot);
     const render = (round: VideoSlotRoundResponse) => {
-        // Round payloads intentionally contain only changing session state.  The canonical player
+        // Round payloads intentionally contain only changing session state.  The shared player
         // also needs the session's stable presentation data (paytable and paylines), exactly as
-        // Studio carries it alongside its RoundArtifact presentation.  Keep that initial contract
+        // Studio carries it alongside its RoundRecord presentation.  Keep that initial shape
         // when applying each round instead of letting an otherwise equivalent settled round lose
         // its player-owned table and line controls.
         const playerRound = {...initialData, ...round};

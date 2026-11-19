@@ -452,10 +452,10 @@
                         }
                     }
                 },
-                "roundArtifact": {
+                "roundRecord": {
                     "schemaVersion": 1,
                     "roundId": "3d8437e2-5ee5-4a27-a24a-b956dc692e24",
-                    "provenance": {
+                    "origin": {
                         "game": {
                             "id": "fixture-slot",
                             "name": "Fixture Slot",
@@ -689,7 +689,7 @@
                     }
                 },
                 "payoutMultiplier": 5,
-                "provenance": {
+                "origin": {
                     "configHash": "sha256:463a0d115a873efc6bec4867c1bb8be295a17a43df01fa10db844275c1cd9819",
                     "game": {
                         "id": "fixture-slot",
