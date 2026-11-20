@@ -5,7 +5,7 @@ import {
 } from "@fromstan/pokie/browser";
 
 const game = {
-    getManifest() {
+    getInfo() {
         return {
             id: "pokie-examples-fixture-slot",
             name: "POKIE Examples Fixture Slot",
