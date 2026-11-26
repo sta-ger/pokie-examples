@@ -217,7 +217,7 @@ describe("pokie-examples' ui.ts adoption of @fromstan/pokie/client/player", () =
 
         expect((div.querySelector(".player-wins") as HTMLElement).hidden).toBe(false);
         const buttons = Array.from(div.querySelectorAll(".player-wins-list .player-highlight-button")) as HTMLButtonElement[];
-        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 0, win: 40"]);
+        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 1 · Ace ×3, win: 40"]);
     });
 
     it("renders multiple win kinds (line + scatter) from the same round together", async () => {
@@ -226,7 +226,7 @@ describe("pokie-examples' ui.ts adoption of @fromstan/pokie/client/player", () =
         await flush();
 
         const buttons = Array.from(div.querySelectorAll(".player-wins-list .player-highlight-button")) as HTMLButtonElement[];
-        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 0, win: 40", "Scatter: Scatter1, win: 60"]);
+        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 1 · Ace ×3, win: 40", "Scatter: Scatter1, win: 60"]);
         expect(div.querySelector(".player-round-total:nth-child(2) dd")?.textContent).toBe("100.00");
         expect(div.querySelector(".player-round-total:nth-child(3) dd")?.textContent).toBe("5.00");
     });
@@ -240,7 +240,7 @@ describe("pokie-examples' ui.ts adoption of @fromstan/pokie/client/player", () =
         await flush();
 
         expect(session.bet).toBe(10);
-        expect(div.querySelector(".player-bet-info .player-bet-current")?.textContent).toBe("Bet: 10");
+        expect(div.querySelector(".player-bet-info .player-bet-current")?.textContent).toBe("Total bet: 10");
     });
 
     it("lets a player pick one of the session's own available bet modes, and re-spins with it", async () => {
@@ -371,7 +371,7 @@ describe("P5-POLISH-19: examples surface renders the identical fixture round cap
         // identical lineId/winAmount to the CLI replay/Studio Play/Studio Replay captures cross-checked
         // above.
         const buttons = Array.from(div.querySelectorAll(".player-wins-list .player-highlight-button")) as HTMLButtonElement[];
-        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 1, win: 5"]);
+        expect(buttons.map((b) => b.textContent)).toEqual(["Line: 2 · A ×3, win: 5"]);
         expect((div.querySelector('[data-cell="0:0"]') as HTMLElement).style.backgroundColor).not.toBe("");
         expect((div.querySelector('[data-cell="0:1"]') as HTMLElement).style.backgroundColor).not.toBe("");
         expect((div.querySelector('[data-cell="0:2"]') as HTMLElement).style.backgroundColor).not.toBe("");
